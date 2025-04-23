@@ -36,24 +36,23 @@ A detective-themed web application that provides comprehensive information about
 IPSherlock includes a secure logging system that records search queries while maintaining privacy and security:
 
 - Logs are stored in Railway's ephemeral filesystem during runtime
-- A random admin password is generated on each application startup
-- The admin password is displayed in Railway's deployment logs
-- Access logs via the admin panel using the secure URL shown in Railway logs
+- Access is protected by a secure environment variable
+- Only authorized users with the correct key can view logs
 
-### Environment Variables (Optional)
+### Environment Variables
 
-For enhanced security, you can set these environment variables in Railway:
+For proper security, set these environment variables in Railway:
 
 1. **SECRET_KEY**: A strong, random string for Flask sessions
    - Example: `python -c "import secrets; print(secrets.token_hex(16))"`
 
-2. **ADMIN_KEY**: A fixed key for accessing admin logs
-   - If not set, a random password is generated on each startup
-   - Find the current password at `/debug-admin` (temporary feature)
+2. **SHERLOCK_CASE_FILE**: The secure key for accessing admin logs
+   - Use a strong, random string different from your SECRET_KEY
+   - Example: `python -c "import secrets; print(secrets.token_hex(24))"`
 
-To access logs, visit:
+To access logs after setting the environment variable:
 ```
-https://ipsherlock.com/admin/logs?key=YOUR_ADMIN_KEY
+https://ipsherlock.com/admin/logs?key=YOUR_SHERLOCK_CASE_FILE_VALUE
 ```
 
 ## Local Development

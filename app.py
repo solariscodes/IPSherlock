@@ -16,19 +16,15 @@ import string
 from datetime import datetime
 from logging.handlers import RotatingFileHandler
 
-# Generate a random admin password on startup
-def generate_random_password(length=16):
-    alphabet = string.ascii_letters + string.digits
-    return ''.join(secrets.choice(alphabet) for _ in range(length))
+# Use a non-obvious environment variable name for admin access
+# SHERLOCK_CASE_FILE is our secure, non-obvious environment variable name
+ADMIN_PASSWORD = os.environ.get('SHERLOCK_CASE_FILE', 'default_admin_key_please_change')
 
-# Generate admin password if not set in environment
-ADMIN_PASSWORD = os.environ.get('ADMIN_KEY', generate_random_password())
-
-# Print the password to the logs for Railway to capture
-if os.environ.get('RAILWAY_ENVIRONMENT'):
-    print(f"\n\n==== ADMIN ACCESS ====")
-    print(f"Admin logs URL: https://ipsherlock.com/admin/logs?key={ADMIN_PASSWORD}")
-    print(f"==== KEEP THIS SECURE ====\n\n")
+# Print a reminder if using the default password
+if os.environ.get('RAILWAY_ENVIRONMENT') and ADMIN_PASSWORD == 'default_admin_key_please_change':
+    print("\n\n==== SECURITY WARNING ====")
+    print("Please set the SHERLOCK_CASE_FILE environment variable in Railway!")
+    print("==== SECURITY WARNING ====\n\n")
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'ipsherlock_detective_secret_key')
@@ -575,10 +571,14 @@ def export_csv(query_type, query):
 def health_check():
     return {"status": "ok", "message": "IPSherlock is running"}
 
-# Debug route to get the admin URL - remove in production
+# This debug route should be removed after setting up the environment variable
 @app.route('/debug-admin')
 def debug_admin():
-    return f"<p>Admin URL: https://ipsherlock.com/admin/logs?key={ADMIN_PASSWORD}</p>"
+    # Only show the admin URL if using the default password
+    if ADMIN_PASSWORD == 'default_admin_key_please_change':
+        return f"<p>Admin URL: https://ipsherlock.com/admin/logs?key={ADMIN_PASSWORD}</p><p>Warning: Using default password. Set SHERLOCK_CASE_FILE in Railway!</p>"
+    else:
+        return "<p>Environment variable is set. Admin URL is now secure.</p>"
 
 # Add admin route to view logs
 @app.route('/admin/logs')

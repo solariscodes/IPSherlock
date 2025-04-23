@@ -16,6 +16,7 @@ A detective-themed web application that provides comprehensive information about
 - Export results to CSV for further analysis
 - Clean, detective-themed responsive UI
 - Secure search logging system
+- Google AdSense integration
 
 ## Technologies Used
 
@@ -25,6 +26,35 @@ A detective-themed web application that provides comprehensive information about
 - **External APIs**: Multiple geolocation services with fallback capability
 - **Python Libraries**: python-whois, dnspython, ipwhois, requests
 - **Version Control**: Git/GitHub
+- **Monetization**: Google AdSense
+- **Security**: Environment-based configuration with secure admin access
+
+## Security & Administration
+
+### Secure Logging System
+
+IPSherlock includes a secure logging system that records search queries while maintaining privacy and security:
+
+- Logs are stored in Railway's ephemeral filesystem during runtime
+- A random admin password is generated on each application startup
+- The admin password is displayed in Railway's deployment logs
+- Access logs via the admin panel using the secure URL shown in Railway logs
+
+### Environment Variables (Optional)
+
+For enhanced security, you can set these environment variables in Railway:
+
+1. **SECRET_KEY**: A strong, random string for Flask sessions
+   - Example: `python -c "import secrets; print(secrets.token_hex(16))"`
+
+2. **ADMIN_KEY**: A fixed key for accessing admin logs
+   - If not set, a random password is generated on each startup
+   - Find the current password at `/debug-admin` (temporary feature)
+
+To access logs, visit:
+```
+https://ipsherlock.com/admin/logs?key=YOUR_ADMIN_KEY
+```
 
 ## Local Development
 
@@ -68,10 +98,11 @@ ipsherlock/
 │   ├── js/
 │   │   └── script.js      # Frontend functionality
 │   └── img/
-│       └── logo.svg       # IPSherlock detective logo
+│       └── 0.png          # IPSherlock detective logo
 └── templates/
     ├── index.html         # Homepage with search box
-    └── results.html       # Detailed results page
+    ├── results.html       # Detailed results page
+    └── admin_logs.html    # Admin logs viewing interface
 ```
 
 ## License

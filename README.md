@@ -1,26 +1,37 @@
-# WHOIS Lookup Tool
+# IPSherlock - IP & Domain Intelligence Tool
 
-A web application that allows users to look up detailed information about IP addresses and hostnames. The application provides comprehensive information including DNS records, WHOIS data, geolocation, and network information.
+A detective-themed web application that provides comprehensive information about IP addresses and domain names. IPSherlock delivers detailed intelligence including DNS records, WHOIS data, geolocation, and network information with a sleek, user-friendly interface.
+
+🔍 **Live Application**: [https://ipsherlock.com/](https://ipsherlock.com/)
 
 ## Features
 
-- IP to hostname resolution
-- Hostname to IP resolution
-- Detailed IP information (ASN, geolocation, network)
+- Comprehensive IP address intelligence
+- Detailed domain name information
 - DNS record lookup (A, MX, NS, TXT)
-- WHOIS information
-- Clean, responsive UI
+- WHOIS data with registrar information
+- Geolocation mapping with country, city, and coordinates
+- Network information including ASN and organization
+- Copy to clipboard functionality for easy data sharing
+- Export results to CSV for further analysis
+- Clean, detective-themed responsive UI
+- Secure search logging system
 
 ## Technologies Used
 
 - **Backend**: Python with Flask
 - **Frontend**: HTML, CSS, JavaScript
-- **External APIs**: ipapi.co for geolocation data
+- **Deployment**: Railway platform
+- **External APIs**: Multiple geolocation services with fallback capability
 - **Python Libraries**: python-whois, dnspython, ipwhois, requests
+- **Version Control**: Git/GitHub
 
 ## Local Development
 
-1. Clone the repository
+1. Clone the repository:
+   ```
+   git clone https://github.com/solariscodes/IPSherlock.git
+   ```
 2. Install the required dependencies:
    ```
    pip install -r requirements.txt
@@ -31,41 +42,36 @@ A web application that allows users to look up detailed information about IP add
    ```
 4. Open your browser and navigate to `http://localhost:5000`
 
-## Deployment to Heroku
+## Deployment on Railway
 
-This application is configured for deployment to Heroku:
+This application is deployed on Railway:
 
-1. Create a Heroku account if you don't have one
-2. Install the Heroku CLI
-3. Login to Heroku:
-   ```
-   heroku login
-   ```
-4. Create a new Heroku app:
-   ```
-   heroku create your-app-name
-   ```
-5. Deploy the application:
-   ```
-   git push heroku main
-   ```
+1. Fork or clone this repository
+2. Create a Railway account at [railway.app](https://railway.app)
+3. Create a new project and connect to your GitHub repository
+4. Railway will automatically detect the Python/Flask application
+5. The application will use the PORT environment variable provided by Railway
+6. Custom domains can be configured in the Railway dashboard
 
 ## Project Structure
 
 ```
-whois-app/
+ipsherlock/
 ├── app.py                 # Main Flask application
 ├── requirements.txt       # Python dependencies
-├── Procfile              # Heroku deployment configuration
-├── runtime.txt           # Python version for Heroku
+├── Procfile               # Railway/Gunicorn configuration
+├── runtime.txt            # Python version specification
+├── logs/                  # Search logs directory (local development)
 ├── static/
 │   ├── css/
-│   │   └── style.css     # Shared styles for both pages
-│   └── js/
-│       └── script.js     # Frontend JavaScript
+│   │   └── style.css      # Detective-themed styles
+│   ├── js/
+│   │   └── script.js      # Frontend functionality
+│   └── img/
+│       └── logo.svg       # IPSherlock detective logo
 └── templates/
-    ├── index.html        # Homepage with search box
-    └── results.html      # Results page
+    ├── index.html         # Homepage with search box
+    └── results.html       # Detailed results page
 ```
 
 ## License

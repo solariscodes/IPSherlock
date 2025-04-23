@@ -4,8 +4,7 @@ import whois
 import dns.resolver
 import requests
 import re
-import subprocess
-import shlex
+# subprocess and shlex imports removed for Railway compatibility
 from ipwhois import IPWhois
 import csv
 import io
@@ -183,57 +182,14 @@ def get_ip_info(ip):
         # Add all RDAP data for completeness
         ip_data["rdap_data"] = results
         
-        # Get additional OS-level information
-        os_tools = {}
-        
-        # Run nslookup command for reverse DNS
-        try:
-            nslookup_result = run_os_command(f'nslookup {ip}')
-            if nslookup_result["success"]:
-                os_tools["nslookup"] = nslookup_result["stdout"]
-            else:
-                os_tools["nslookup_error"] = nslookup_result.get("error", "Unknown error")
-        except Exception as e:
-            os_tools["nslookup_error"] = str(e)
-        
-        # We'll skip traceroute by default as it's slow
-        # Uncomment this if you want to enable it
-        # try:
-        #     tracert_result = run_os_command(f'tracert -d -h 5 {ip}', timeout=5)
-        #     if tracert_result["success"]:
-        #         os_tools["traceroute"] = tracert_result["stdout"]
-        #     else:
-        #         os_tools["traceroute_error"] = tracert_result.get("error", "Unknown error")
-        # except Exception as e:
-        #     os_tools["traceroute_error"] = str(e)
-        
-        ip_data["os_tools"] = os_tools
+        # OS tools section removed for Railway compatibility
+        ip_data["os_tools"] = {}
         
         return ip_data
     except Exception as e:
         return {"error": str(e)}
 
-def run_os_command(command, timeout=3):
-    """Run an OS command and return the output."""
-    try:
-        # Use subprocess to run the command and capture output with a shorter timeout
-        process = subprocess.run(command, shell=True, capture_output=True, text=True, timeout=timeout)
-        return {
-            "success": True,
-            "stdout": process.stdout,
-            "stderr": process.stderr,
-            "return_code": process.returncode
-        }
-    except subprocess.TimeoutExpired:
-        return {
-            "success": False,
-            "error": f"Command timed out after {timeout} seconds"
-        }
-    except Exception as e:
-        return {
-            "success": False,
-            "error": str(e)
-        }
+# run_os_command function removed for Railway compatibility
 
 def get_host_info(hostname):
     """Get detailed information about a hostname."""
@@ -347,34 +303,8 @@ def get_host_info(hostname):
             except Exception as e:
                 host_data["ip_info"] = {"error": f"Error getting IP info: {str(e)}"}
         
-        # Get additional OS-level DNS information
-        os_tools = {}
-        
-        # Run nslookup command
-        try:
-            nslookup_result = run_os_command(f'nslookup {hostname}')
-            if nslookup_result["success"]:
-                os_tools["nslookup"] = nslookup_result["stdout"]
-            else:
-                os_tools["nslookup_error"] = nslookup_result.get("error", "Unknown error")
-        except Exception as e:
-            os_tools["nslookup_error"] = str(e)
-        
-        # Skip host/dig commands on Windows as they're likely not available
-        # and will just cause delays
-        # try:
-        #     host_result = run_os_command(f'host {hostname}')
-        #     if host_result["success"] and host_result["return_code"] == 0:
-        #         os_tools["host"] = host_result["stdout"]
-        #     else:
-        #         # If host command fails, try dig as an alternative
-        #         dig_result = run_os_command(f'dig {hostname}')
-        #         if dig_result["success"] and dig_result["return_code"] == 0:
-        #             os_tools["dig"] = dig_result["stdout"]
-        # except Exception as e:
-        #     os_tools["host_error"] = str(e)
-        
-        host_data["os_tools"] = os_tools
+        # OS tools section removed for Railway compatibility
+        host_data["os_tools"] = {}
         
         return host_data
     except Exception as e:

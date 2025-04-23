@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About IPSherlock - The Detective for IP Addresses & Domains</title>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Learn about IPSherlock - The detective tool for IP addresses and domains. Discover comprehensive information about our features, mission, and how we help users investigate network information.">
+    <meta name="keywords" content="IP lookup tool, domain investigation, WHOIS lookup, DNS records, IP geolocation, network tools, IP detective">
+    <meta name="author" content="IPSherlock">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://ipsherlock.com/about">
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <link rel="icon" href="{{ url_for('static', filename='img/0.png') }}" type="image/png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google AdSense Code -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4443735425555753"
+         crossorigin="anonymous"></script>
+         
+    <!-- Structured Data / JSON-LD -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "AboutPage",
+      "name": "About IPSherlock",
+      "url": "https://ipsherlock.com/about",
+      "description": "Learn about IPSherlock - The detective tool for IP addresses and domains.",
+      "mainEntity": {
+        "@type": "WebApplication",
+        "name": "IPSherlock",
+        "applicationCategory": "NetworkTool",
+        "operatingSystem": "Any"
+      }
+    }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo-container">
+                <img src="{{ url_for('static', filename='img/0.png') }}" alt="IPSherlock Logo" class="logo">
+                <h1><a href="{{ url_for('index') }}" class="title-link">IPSherlock</a></h1>
+            </div>
+            <p>The Detective for IP Addresses & Domains</p>
+        </header>
+        
+        <main class="about-main">
+            <section class="about-section">
+                <h2>About IPSherlock</h2>
+                <p>IPSherlock is a comprehensive tool designed to help users investigate and gather detailed information about IP addresses and domain names. Just like a detective, IPSherlock uncovers the hidden details behind network identifiers.</p>
+                
+                <h3>Our Mission</h3>
+                <p>Our mission is to provide a simple yet powerful interface for network investigations, making technical information accessible to everyone from IT professionals to curious individuals.</p>
+                
+                <h3>Key Features</h3>
+                <ul class="feature-list">
+                    <li><strong>IP Address Lookup:</strong> Get detailed information about any IP address including geolocation, ISP, organization, and more.</li>
+                    <li><strong>Domain Investigation:</strong> Uncover registration details, DNS records, and hosting information for any domain name.</li>
+                    <li><strong>WHOIS Data:</strong> Access comprehensive WHOIS records with registrar information, creation dates, and contact details.</li>
+                    <li><strong>DNS Records:</strong> View all DNS records including A, AAAA, MX, TXT, NS, and more.</li>
+                    <li><strong>Data Export:</strong> Download investigation results in CSV format for further analysis or record-keeping.</li>
+                </ul>
+                
+                <h3>How It Works</h3>
+                <p>IPSherlock uses multiple reliable data sources and APIs to gather and compile information about IP addresses and domains. Our system processes this data and presents it in an organized, easy-to-understand format with a detective-themed interface.</p>
+                
+                <h3>Privacy & Security</h3>
+                <p>We respect your privacy. IPSherlock doesn't store search queries or personal information. All lookups are performed in real-time and results are displayed directly to you without being saved on our servers.</p>
+                
+                <div class="cta-container">
+                    <a href="{{ url_for('index') }}" class="cta-button">Try IPSherlock Now</a>
+                </div>
+            </section>
+        </main>
+        
+        <footer>
+            <p>&copy; 2025 IPSherlock. All rights reserved.</p>
+            <div class="footer-links">
+                <a href="{{ url_for('index') }}">Home</a>
+                <a href="{{ url_for('about_alt') }}" class="active">About</a>
+            </div>
+        </footer>
+    </div>
+    
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>

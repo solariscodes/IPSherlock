@@ -354,6 +354,18 @@ def get_host_info(hostname):
 def index():
     return render_template('index.html')
 
+@app.route('/about')
+def about():
+    # Usando uma abordagem alternativa que deve funcionar no Railway
+    # Baseado na memória de que o Railway usa um ambiente containerizado
+    # que pode ter restrições específicas
+    return render_template('about.html')
+
+# Rota alternativa para a página about usando o padrão de URL que sabemos funcionar
+@app.route('/lookup/about')
+def about_alt():
+    return render_template('about.html')
+
 @app.route('/sitemap.xml')
 def sitemap():
     sitemap_xml = '''<?xml version="1.0" encoding="UTF-8"?>
@@ -364,9 +376,19 @@ def sitemap():
     <changefreq>monthly</changefreq>
     <priority>1.0</priority>
   </url>
+  <url>
+    <loc>https://ipsherlock.com/lookup/about</loc>
+    <lastmod>2025-04-23</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
 </urlset>'''
     response = Response(sitemap_xml, mimetype='application/xml')
     return response
+
+@app.route('/robots.txt')
+def robots():
+    return send_from_directory('static', 'robots.txt')
 
 @app.route('/lookup', methods=['POST'])
 def lookup():

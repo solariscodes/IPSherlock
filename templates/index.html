@@ -17,6 +17,28 @@
     <!-- Google AdSense Code -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4443735425555753"
          crossorigin="anonymous"></script>
+         
+    <!-- Structured Data / JSON-LD -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "IPSherlock",
+      "url": "https://ipsherlock.com",
+      "description": "The detective for IP addresses and domains. Get comprehensive information about IP addresses, domains, WHOIS data, DNS records, and more.",
+      "applicationCategory": "NetworkTool",
+      "operatingSystem": "Any",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "author": {
+        "@type": "Organization",
+        "name": "IPSherlock"
+      }
+    }
+    </script>
 </head>
 <body>
     <div class="container">
@@ -55,7 +77,11 @@
     </div>
     
     <footer>
-        <p>&copy; 2025 IPSherlock - The IP & Domain Detective</p>
+        <p>&copy; 2025 IPSherlock. All rights reserved.</p>
+        <div class="footer-links">
+            <a href="{{ url_for('index') }}" class="active">Home</a>
+            <a href="{{ url_for('about_alt') }}">About</a>
+        </div>
     </footer>
     
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>

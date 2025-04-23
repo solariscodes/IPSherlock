@@ -185,8 +185,10 @@ button:hover {
     background-color: white;
     border-radius: 8px;
     box-shadow: var(--card-shadow);
-    padding: 30px;
+    padding: 20px;
+    margin-top: 20px;
     width: 100%;
+    overflow-x: hidden;
 }
 
 .copy-btn {
@@ -244,6 +246,8 @@ button:hover {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     gap: 15px;
+    margin-top: 15px;
+    width: 100%;
 }
 
 .info-grid.single-column {
@@ -255,26 +259,13 @@ button:hover {
     gap: 10px;
 }
 
-.info-item.compact {
-    margin-bottom: 5px;
-    padding: 5px 10px;
+.info-item {
     background-color: #f8f9fa;
     border-radius: 4px;
-    border: 1px solid var(--border-color);
-}
-
-.warning-text {
-    color: #e74c3c;
-    font-style: italic;
-}
-
-.info-item {
+    padding: 10px 15px;
     display: flex;
     flex-direction: column;
-    padding: 10px;
-    border: 1px solid var(--border-color);
-    border-radius: 4px;
-    background-color: #f9f9f9;
+    word-break: break-word;
 }
 
 .txt-record-item {
@@ -531,25 +522,26 @@ footer {
 /* Responsive Styles */
 @media (max-width: 768px) {
     .container {
-        padding: 15px;
+        padding: 10px;
+        max-width: 100%;
     }
     
     header {
-        margin-bottom: 20px;
+        margin-bottom: 15px;
     }
     
     header h1 {
-        font-size: 2rem;
+        font-size: 1.8rem;
     }
     
     .logo {
-        width: 60px;
-        height: 60px;
-        margin-right: 10px;
+        width: 50px;
+        height: 50px;
+        margin-right: 8px;
     }
     
     .search-box {
-        padding: 20px;
+        padding: 15px;
         width: 100%;
         max-width: 100%;
     }
@@ -573,65 +565,127 @@ footer {
     
     .info-grid {
         grid-template-columns: 1fr;
+        width: 100%;
+    }
+    
+    .results-container {
+        padding: 15px;
+        overflow-x: hidden;
+    }
+    
+    .results-container h2 {
+        font-size: 1.3rem;
+        word-break: break-word;
+    }
+    
+    .result-section {
+        margin-bottom: 15px;
+        width: 100%;
+        overflow-x: hidden;
     }
     
     .result-section h3 {
         font-size: 1.2rem;
-        padding: 10px;
+        padding: 8px;
     }
     
     .copy-btn, .copy-btn.success {
         font-size: 0.6em;
         padding: 2px 4px;
+        margin-left: 5px;
     }
     
     .collapsible-content {
-        padding: 10px;
+        padding: 8px;
+        width: 100%;
+        overflow-x: auto;
     }
     
     .collapsible-content pre {
         font-size: 12px;
-        overflow-x: auto;
+        white-space: pre-wrap;
+        word-break: break-word;
     }
     
     .dns-records-container {
         grid-template-columns: 1fr;
         gap: 10px;
+        width: 100%;
     }
     
     .dns-record {
         padding: 10px;
+        width: 100%;
     }
     
     .examples {
         flex-direction: column;
         align-items: flex-start;
+        width: 100%;
     }
     
     .examples span {
         margin-bottom: 5px;
     }
+    
+    .info-item {
+        width: 100%;
+        word-break: break-word;
+    }
+    
+    .label, .value {
+        width: 100%;
+        word-break: break-word;
+    }
 }
 
 @media (max-width: 480px) {
     header h1 {
-        font-size: 1.6rem;
+        font-size: 1.4rem;
     }
     
     header p {
-        font-size: 1rem;
+        font-size: 0.9rem;
     }
     
     .logo {
-        width: 50px;
-        height: 50px;
+        width: 40px;
+        height: 40px;
     }
     
     .search-box h2 {
-        font-size: 1.2rem;
+        font-size: 1.1rem;
     }
     
     .result-section h3 {
+        font-size: 1rem;
+    }
+    
+    .results-container h2 {
         font-size: 1.1rem;
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+    
+    .results-container h2 .copy-btn {
+        margin-top: 5px;
+    }
+    
+    .info-item .label {
+        font-size: 0.9rem;
+    }
+    
+    .info-item .value {
+        font-size: 0.9rem;
+    }
+    
+    .back-link {
+        margin-top: 15px;
+    }
+    
+    .back-link a {
+        padding: 8px 15px;
+        font-size: 0.9rem;
     }
 }

@@ -20,11 +20,24 @@ app.secret_key = 'ipsherlock_detective_secret_key'
 app.config['SESSION_TYPE'] = 'filesystem'
 
 # Configure SQLAlchemy
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///ipsherlock.db')
+# Handle potential postgres:// vs postgresql:// in DATABASE_URL
+database_url = os.environ.get('DATABASE_URL', 'sqlite:///ipsherlock.db')
+if database_url and database_url.startswith('postgres://'):
+    database_url = database_url.replace('postgres://', 'postgresql://', 1)
+
+app.config['SQLALCHEMY_DATABASE_URI'] = database_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Initialize SQLAlchemy
 db.init_app(app)
+
+# Create tables within app context
+with app.app_context():
+    try:
+        db.create_all()
+        print("Database tables created successfully")
+    except Exception as e:
+        print(f"Error creating database tables: {e}")
 
 # Setup logging
 log_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'logs')
@@ -544,10 +557,10 @@ def export_csv(query_type, query):
         # If anything goes wrong, redirect to results page
         return redirect(url_for('results', query=query))
 
-# Create database tables
-@app.before_first_request
-def create_tables():
-    db.create_all()
+# This route will be used to check if the app is running
+@app.route('/health')
+def health_check():
+    return {"status": "ok", "message": "IPSherlock is running"}
 
 # Add admin route to view logs
 @app.route('/admin/logs')
@@ -575,9 +588,7 @@ if __name__ == '__main__':
         with open(gitignore_path, 'w') as f:
             f.write('# Log files\nlogs/\n')
     
-    # Create database tables
-    with app.app_context():
-        db.create_all()
+    # Database tables are created at app startup
     
     # Use Railway's PORT environment variable if available, otherwise default to 5000
     port = int(os.environ.get("PORT", 5000))

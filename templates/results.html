@@ -4,15 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>IPSherlock - Results for {{ query }}</title>
-    
-    <!-- Open Graph / Social Media Meta Tags -->
-    <meta property="og:title" content="IPSherlock - Results for {{ query }}">
-    <meta property="og:description" content="Detective investigation results for {{ query }} - Comprehensive IP and domain information">
-    <meta property="og:image" content="{{ url_for('static', filename='img/og-image.png', _external=True) }}">
-    <meta property="og:url" content="{{ request.url }}">
-    <meta property="og:type" content="website">
-    <meta property="og:site_name" content="IPSherlock">
-    <meta name="theme-color" content="#4a6fa5">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
     <link rel="icon" href="{{ url_for('static', filename='img/0.png') }}" type="image/png">

@@ -11,11 +11,27 @@ import io
 import json
 import os
 import logging
+import secrets
+import string
 from datetime import datetime
 from logging.handlers import RotatingFileHandler
 
+# Generate a random admin password on startup
+def generate_random_password(length=16):
+    alphabet = string.ascii_letters + string.digits
+    return ''.join(secrets.choice(alphabet) for _ in range(length))
+
+# Generate admin password if not set in environment
+ADMIN_PASSWORD = os.environ.get('ADMIN_KEY', generate_random_password())
+
+# Print the password to the logs for Railway to capture
+if os.environ.get('RAILWAY_ENVIRONMENT'):
+    print(f"\n\n==== ADMIN ACCESS ====")
+    print(f"Admin logs URL: https://ipsherlock.com/admin/logs?key={ADMIN_PASSWORD}")
+    print(f"==== KEEP THIS SECURE ====\n\n")
+
 app = Flask(__name__)
-app.secret_key = 'ipsherlock_detective_secret_key'
+app.secret_key = os.environ.get('SECRET_KEY', 'ipsherlock_detective_secret_key')
 app.config['SESSION_TYPE'] = 'filesystem'
 
 # Define constants for log storage
@@ -562,9 +578,9 @@ def health_check():
 # Add admin route to view logs
 @app.route('/admin/logs')
 def admin_logs():
-    # Simple authentication - you can enhance this later
-    if request.args.get('key') != app.secret_key:
-        return "Unauthorized", 401
+    # Check if the provided key matches the admin password
+    if request.args.get('key') != ADMIN_PASSWORD:
+        return "Not Found", 404
     
     # Get logs from file
     log_entries = []

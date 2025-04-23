@@ -4,15 +4,11 @@ import whois
 import dns.resolver
 import requests
 import re
-# subprocess and shlex imports removed for Railway compatibility
 from ipwhois import IPWhois
 import csv
 import io
-import json
 import os
 import logging
-import secrets
-import string
 from datetime import datetime
 from logging.handlers import RotatingFileHandler
 
@@ -421,38 +417,7 @@ def results():
         data = {"error": f"An error occurred during lookup: {str(e)}"}
         query_type = 'error'
     
-    # Ensure geolocation data is properly formatted
-    if query_type == 'ip' and 'geo_info' in data:
-        # Check if we have valid geolocation data
-        if isinstance(data['geo_info'].get('latitude'), (int, float)) and isinstance(data['geo_info'].get('longitude'), (int, float)):
-            # Make sure we have valid coordinates that aren't 0,0 (which is in the ocean)
-            if abs(data['geo_info']['latitude']) > 0.001 or abs(data['geo_info']['longitude']) > 0.001:
-                # Data is good, no changes needed
-                pass
-            else:
-                # Invalid coordinates (0,0), remove them
-                data['geo_info']['latitude'] = None
-                data['geo_info']['longitude'] = None
-        else:
-            # Invalid data type, set to None
-            data['geo_info']['latitude'] = None
-            data['geo_info']['longitude'] = None
-    
-    elif query_type == 'hostname' and 'ip_geo_info' in data:
-        # Check if we have valid geolocation data
-        if isinstance(data['ip_geo_info'].get('latitude'), (int, float)) and isinstance(data['ip_geo_info'].get('longitude'), (int, float)):
-            # Make sure we have valid coordinates that aren't 0,0 (which is in the ocean)
-            if abs(data['ip_geo_info']['latitude']) > 0.001 or abs(data['ip_geo_info']['longitude']) > 0.001:
-                # Data is good, no changes needed
-                pass
-            else:
-                # Invalid coordinates (0,0), remove them
-                data['ip_geo_info']['latitude'] = None
-                data['ip_geo_info']['longitude'] = None
-        else:
-            # Invalid data type, set to None
-            data['ip_geo_info']['latitude'] = None
-            data['ip_geo_info']['longitude'] = None
+    # Geolocation data is no longer used for map display
     
     return render_template('results.html', query=query, data=data, query_type=query_type)
 

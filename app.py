@@ -156,8 +156,8 @@ def get_ip_info(ip):
             "region": "N/A",
             "city": "N/A",
             "postal": "N/A",
-            "latitude": "N/A",
-            "longitude": "N/A",
+            "latitude": None,
+            "longitude": None,
             "timezone": "N/A",
             "org": results.get("asn_description", "N/A"),
             "isp": results.get("asn_description", "N/A"),
@@ -178,8 +178,8 @@ def get_ip_info(ip):
                     "region": geo_data.get("region", "N/A"),
                     "city": geo_data.get("city", "N/A"),
                     "postal": geo_data.get("postal", "N/A"),
-                    "latitude": geo_data.get("latitude", "N/A"),
-                    "longitude": geo_data.get("longitude", "N/A"),
+                    "latitude": float(geo_data.get("latitude")) if geo_data.get("latitude") not in (None, "N/A") else None,
+                    "longitude": float(geo_data.get("longitude")) if geo_data.get("longitude") not in (None, "N/A") else None,
                     "timezone": geo_data.get("timezone", "N/A"),
                     "org": geo_data.get("org", ip_data["org"]),
                 })
@@ -200,8 +200,8 @@ def get_ip_info(ip):
                             "region": fallback_data.get("regionName", "N/A"),
                             "city": fallback_data.get("city", "N/A"),
                             "postal": fallback_data.get("zip", "N/A"),
-                            "latitude": fallback_data.get("lat", "N/A"),
-                            "longitude": fallback_data.get("lon", "N/A"),
+                            "latitude": float(fallback_data.get("lat")) if fallback_data.get("lat") not in (None, "N/A") else None,
+                            "longitude": float(fallback_data.get("lon")) if fallback_data.get("lon") not in (None, "N/A") else None,
                             "timezone": fallback_data.get("timezone", "N/A"),
                             "org": fallback_data.get("org", ip_data["org"]),
                             "isp": fallback_data.get("isp", ip_data["isp"]),
@@ -420,6 +420,18 @@ def results():
     except Exception as e:
         data = {"error": f"An error occurred during lookup: {str(e)}"}
         query_type = 'error'
+    
+    # Ensure geolocation data is properly formatted
+    if query_type == 'ip' and 'geo_info' in data:
+        if data['geo_info'].get('latitude') == 'N/A':
+            data['geo_info']['latitude'] = None
+        if data['geo_info'].get('longitude') == 'N/A':
+            data['geo_info']['longitude'] = None
+    elif query_type == 'hostname' and 'ip_geo_info' in data:
+        if data['ip_geo_info'].get('latitude') == 'N/A':
+            data['ip_geo_info']['latitude'] = None
+        if data['ip_geo_info'].get('longitude') == 'N/A':
+            data['ip_geo_info']['longitude'] = None
     
     return render_template('results.html', query=query, data=data, query_type=query_type)
 

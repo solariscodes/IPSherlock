@@ -474,57 +474,81 @@
     <!-- Map initialization script -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            {% if (query_type == 'ip' and data.geo_info.latitude and data.geo_info.longitude) or 
-                  (query_type == 'hostname' and data.ip_geo_info.latitude and data.ip_geo_info.longitude) %}
-                
-                // Get coordinates based on query type
-                {% if query_type == 'ip' %}
-                    var lat = {{ data.geo_info.latitude }};
-                    var lon = {{ data.geo_info.longitude }};
-                    var locationName = "{{ data.geo_info.city or '' }}, {{ data.geo_info.country_name or '' }}";
-                {% else %}
-                    var lat = {{ data.ip_geo_info.latitude }};
-                    var lon = {{ data.ip_geo_info.longitude }};
-                    var locationName = "{{ data.ip_geo_info.city or '' }}, {{ data.ip_geo_info.country_name or '' }}";
+            // Coordinates will be set by the server if available
+            var hasCoordinates = false;
+            var lat = 0;
+            var lon = 0;
+            var locationName = "";
+            var query = "{{ query }}";
+            
+            {% if not 'error' in data %}
+                {% if query_type == 'ip' and data.geo_info is defined %}
+                    {% if data.geo_info.latitude is defined and data.geo_info.longitude is defined and data.geo_info.latitude and data.geo_info.longitude %}
+                        hasCoordinates = true;
+                        lat = {{ data.geo_info.latitude }};
+                        lon = {{ data.geo_info.longitude }};
+                        locationName = "{{ data.geo_info.city|default('') }}, {{ data.geo_info.country_name|default('') }}";
+                    {% endif %}
+                {% elif query_type == 'hostname' and data.ip_geo_info is defined %}
+                    {% if data.ip_geo_info.latitude is defined and data.ip_geo_info.longitude is defined and data.ip_geo_info.latitude and data.ip_geo_info.longitude %}
+                        hasCoordinates = true;
+                        lat = {{ data.ip_geo_info.latitude }};
+                        lon = {{ data.ip_geo_info.longitude }};
+                        locationName = "{{ data.ip_geo_info.city|default('') }}, {{ data.ip_geo_info.country_name|default('') }}";
+                    {% endif %}
                 {% endif %}
+            {% endif %}
+            
+            // Initialize map if we have coordinates
+            if (hasCoordinates) {
+                initMap(lat, lon, locationName, query);
+            }
                 
-                // Initialize map if coordinates are valid
-                if (lat && lon && lat != 0 && lon != 0) {
-                    // Create map container if it doesn't exist
-                    if (!document.getElementById('ip-location-map')) {
-                        var mapSection = document.createElement('div');
-                        mapSection.className = 'result-section';
-                        mapSection.innerHTML = '<h3>Location Map</h3><div id="ip-location-map" style="height: 300px; width: 100%; border-radius: 4px;"></div>';
-                        
-                        // Insert after the first result section
-                        var firstSection = document.querySelector('.result-section');
-                        if (firstSection && firstSection.parentNode) {
-                            firstSection.parentNode.insertBefore(mapSection, firstSection.nextSibling);
+            
+            function initMap(lat, lon, locationName, queryText) {
+                // Create map container if it doesn't exist
+                if (!document.getElementById('ip-location-map')) {
+                    var mapSection = document.createElement('div');
+                    mapSection.className = 'result-section';
+                    mapSection.innerHTML = '<h3>Location Map</h3><div id="ip-location-map" style="height: 300px; width: 100%; border-radius: 4px;"></div>';
+                    
+                    // Insert after the first result section
+                    var firstSection = document.querySelector('.result-section');
+                    if (firstSection && firstSection.parentNode) {
+                        firstSection.parentNode.insertBefore(mapSection, firstSection.nextSibling);
+                    }
+                }
+                
+                // Wait a moment for the DOM to update
+                setTimeout(function() {
+                    if (document.getElementById('ip-location-map')) {
+                        try {
+                            // Initialize the map
+                            var map = L.map('ip-location-map').setView([lat, lon], 10);
+                            
+                            // Add detective-themed map tiles
+                            L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+                                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+                                subdomains: 'abcd',
+                                maxZoom: 19
+                            }).addTo(map);
+                            
+                            // Add a marker with custom icon
+                            var magnifyingGlassIcon = L.divIcon({
+                                html: '<i class="fas fa-search" style="font-size: 24px; color: #c0a080;"></i>',
+                                className: 'detective-marker',
+                                iconSize: [30, 30],
+                                iconAnchor: [15, 15]
+                            });
+                            
+                            L.marker([lat, lon], {icon: magnifyingGlassIcon}).addTo(map)
+                                .bindPopup("<b>" + locationName + "</b><br>" + queryText).openPopup();
+                        } catch (e) {
+                            console.error("Error initializing map:", e);
                         }
                     }
-                    
-                    // Initialize the map
-                    var map = L.map('ip-location-map').setView([lat, lon], 10);
-                    
-                    // Add detective-themed map tiles
-                    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-                        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-                        subdomains: 'abcd',
-                        maxZoom: 19
-                    }).addTo(map);
-                    
-                    // Add a marker with custom icon
-                    var magnifyingGlassIcon = L.divIcon({
-                        html: '<i class="fas fa-search" style="font-size: 24px; color: #c0a080;"></i>',
-                        className: 'detective-marker',
-                        iconSize: [30, 30],
-                        iconAnchor: [15, 15]
-                    });
-                    
-                    L.marker([lat, lon], {icon: magnifyingGlassIcon}).addTo(map)
-                        .bindPopup("<b>" + locationName + "</b><br>{{ query }}").openPopup();
-                }
-            {% endif %}
+                }, 100);
+            }
         });
     </script>
 </body>

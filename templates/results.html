@@ -474,6 +474,16 @@
     <!-- Map initialization script -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded, initializing map if coordinates available');
+            
+            // Debug info about data
+            console.log('Query type: {{ query_type }}');
+            {% if query_type == 'ip' and data.geo_info is defined %}
+                console.log('IP geo info:', {{ data.geo_info|tojson }});
+            {% elif query_type == 'hostname' and data.ip_geo_info is defined %}
+                console.log('Hostname geo info:', {{ data.ip_geo_info|tojson }});
+            {% endif %}
+            
             // Coordinates will be set by the server if available
             var hasCoordinates = false;
             var lat = 0;
@@ -488,6 +498,9 @@
                         lat = {{ data.geo_info.latitude }};
                         lon = {{ data.geo_info.longitude }};
                         locationName = "{{ data.geo_info.city|default('') }}, {{ data.geo_info.country_name|default('') }}";
+                        console.log('IP coordinates found:', lat, lon, locationName);
+                    {% else %}
+                        console.log('IP coordinates missing or invalid');
                     {% endif %}
                 {% elif query_type == 'hostname' and data.ip_geo_info is defined %}
                     {% if data.ip_geo_info.latitude is defined and data.ip_geo_info.longitude is defined and data.ip_geo_info.latitude and data.ip_geo_info.longitude %}
@@ -495,36 +508,50 @@
                         lat = {{ data.ip_geo_info.latitude }};
                         lon = {{ data.ip_geo_info.longitude }};
                         locationName = "{{ data.ip_geo_info.city|default('') }}, {{ data.ip_geo_info.country_name|default('') }}";
+                        console.log('Hostname coordinates found:', lat, lon, locationName);
+                    {% else %}
+                        console.log('Hostname coordinates missing or invalid');
                     {% endif %}
                 {% endif %}
             {% endif %}
             
             // Initialize map if we have coordinates
+            console.log('Has coordinates:', hasCoordinates);
             if (hasCoordinates) {
+                console.log('Initializing map with coordinates:', lat, lon);
                 initMap(lat, lon, locationName, query);
+            } else {
+                console.log('No coordinates available, map will not be displayed');
             }
                 
             
             function initMap(lat, lon, locationName, queryText) {
-                // Create map container if it doesn't exist
-                if (!document.getElementById('ip-location-map')) {
-                    var mapSection = document.createElement('div');
-                    mapSection.className = 'result-section';
-                    mapSection.innerHTML = '<h3>Location Map</h3><div id="ip-location-map" style="height: 300px; width: 100%; border-radius: 4px;"></div>';
-                    
-                    // Insert after the first result section
-                    var firstSection = document.querySelector('.result-section');
-                    if (firstSection && firstSection.parentNode) {
-                        firstSection.parentNode.insertBefore(mapSection, firstSection.nextSibling);
-                    }
+                console.log('Creating map container');
+                
+                // Create map container directly in the DOM rather than dynamically
+                var mapSection = document.createElement('div');
+                mapSection.className = 'result-section';
+                mapSection.innerHTML = '<h3>Location Map</h3><div id="ip-location-map" style="height: 300px; width: 100%; border-radius: 4px;"></div>';
+                
+                // Insert after the first result section
+                var firstSection = document.querySelector('.result-section');
+                if (firstSection && firstSection.parentNode) {
+                    console.log('Found first section, inserting map after it');
+                    firstSection.parentNode.insertBefore(mapSection, firstSection.nextSibling);
+                } else {
+                    console.log('No result section found, appending to main');
+                    document.querySelector('.results-main').appendChild(mapSection);
                 }
                 
                 // Wait a moment for the DOM to update
                 setTimeout(function() {
-                    if (document.getElementById('ip-location-map')) {
+                    var mapContainer = document.getElementById('ip-location-map');
+                    if (mapContainer) {
+                        console.log('Map container found, initializing Leaflet');
                         try {
                             // Initialize the map
                             var map = L.map('ip-location-map').setView([lat, lon], 10);
+                            console.log('Map initialized');
                             
                             // Add detective-themed map tiles
                             L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
@@ -532,6 +559,7 @@
                                 subdomains: 'abcd',
                                 maxZoom: 19
                             }).addTo(map);
+                            console.log('Tiles added');
                             
                             // Add a marker with custom icon
                             var magnifyingGlassIcon = L.divIcon({
@@ -543,11 +571,20 @@
                             
                             L.marker([lat, lon], {icon: magnifyingGlassIcon}).addTo(map)
                                 .bindPopup("<b>" + locationName + "</b><br>" + queryText).openPopup();
+                            console.log('Marker added');
+                            
+                            // Force a resize after a moment to ensure proper rendering
+                            setTimeout(function() {
+                                map.invalidateSize();
+                                console.log('Map size invalidated to force redraw');
+                            }, 500);
                         } catch (e) {
                             console.error("Error initializing map:", e);
                         }
+                    } else {
+                        console.error('Map container not found after insertion');
                     }
-                }, 100);
+                }, 300);
             }
         });
     </script>

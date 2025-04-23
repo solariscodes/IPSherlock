@@ -41,3 +41,6 @@ instance/
 
 # Heroku
 .env
+
+# Log files
+logs/

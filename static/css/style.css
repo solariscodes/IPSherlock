@@ -47,8 +47,10 @@ body {
 /* Header Styles */
 header {
     text-align: center;
-    margin-bottom: 10px;
+    margin-bottom: 20px;
     padding: 10px 0;
+    width: 100%;
+    max-width: 600px;
 }
 
 .logo-container {
@@ -56,6 +58,7 @@ header {
     align-items: center;
     justify-content: center;
     margin-bottom: 10px;
+    height: 80px;
 }
 
 .logo {
@@ -73,6 +76,7 @@ header h1 {
     margin-bottom: 10px;
     font-family: 'Playfair Display', serif;
     letter-spacing: 1px;
+    line-height: 1.2;
 }
 
 .title-link {
@@ -100,6 +104,7 @@ header p {
     justify-content: center;
     width: 100%;
     max-width: 600px;
+    margin: 0 auto;
 }
 
 .search-box {
@@ -110,6 +115,7 @@ header p {
     width: 100%;
     max-width: 600px;
     margin-bottom: 40px;
+    margin-top: 10px;
 }
 
 .search-box.mini {
@@ -130,6 +136,8 @@ input[type="text"] {
     font-size: 1rem;
     outline: none;
     transition: border-color 0.3s;
+    height: 46px;
+    vertical-align: middle;
 }
 
 input[type="text"]:focus {
@@ -146,6 +154,8 @@ button {
     cursor: pointer;
     transition: background-color 0.3s;
     font-weight: 500;
+    height: 46px;
+    vertical-align: middle;
 }
 
 button:hover {
@@ -179,11 +189,35 @@ button:hover {
     width: 100%;
 }
 
+.copy-btn {
+    background-color: var(--detective-color);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 4px 8px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    margin-left: 10px;
+    vertical-align: middle;
+}
+
+.copy-btn:hover {
+    background-color: #1a5276;
+}
+
+.copy-btn.success {
+    background-color: #27ae60;
+}
+
 .results-container h2 {
     color: var(--detective-color);
-    margin-bottom: 20px;
-    padding-bottom: 10px;
-    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
     font-family: 'Playfair Display', serif;
     letter-spacing: 0.5px;
 }

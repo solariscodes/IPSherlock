@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, Response
+from flask import Flask, render_template, request, redirect, url_for, Response, session
 import socket
 import whois
 import dns.resolver
@@ -9,9 +9,62 @@ import shlex
 from ipwhois import IPWhois
 import csv
 import io
+import json
+import os
+import logging
 from datetime import datetime
+from logging.handlers import RotatingFileHandler
 
 app = Flask(__name__)
+app.secret_key = 'ipsherlock_detective_secret_key'
+app.config['SESSION_TYPE'] = 'filesystem'
+
+# Setup logging
+log_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'logs')
+os.makedirs(log_dir, exist_ok=True)
+
+# Create a custom logger for searches
+search_logger = logging.getLogger('search_logger')
+search_logger.setLevel(logging.INFO)
+
+# Prevent the logger from propagating to the root logger
+search_logger.propagate = False
+
+# Create handlers
+search_log_file = os.path.join(log_dir, 'search.log')
+handler = RotatingFileHandler(search_log_file, maxBytes=10485760, backupCount=10)  # 10MB per file, keep 10 files
+handler.setLevel(logging.INFO)
+
+# Create formatters and add it to handlers
+formatter = logging.Formatter('%(message)s')
+handler.setFormatter(formatter)
+
+# Add handlers to the logger
+search_logger.addHandler(handler)
+
+# Log all requests to the results page
+@app.before_request
+def log_request():
+    if request.path == '/results' and 'query' in request.args:
+        query = request.args.get('query', '').strip()
+        if query:
+            # Direct file-based logging approach
+            try:
+                log_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'logs')
+                os.makedirs(log_dir, exist_ok=True)
+                log_file = os.path.join(log_dir, 'search.log')
+                
+                client_ip = request.remote_addr
+                timestamp = datetime.now().strftime('[%d/%b/%Y %H:%M:%S]')
+                log_entry = f"{client_ip} - - {timestamp} \"GET /results?query={query} HTTP/1.1\" 200 -\n"
+                
+                # Write directly to the file
+                with open(log_file, 'a', encoding='utf-8') as f:
+                    f.write(log_entry)
+                    f.flush()
+                    os.fsync(f.fileno())  # Force write to disk
+            except Exception as e:
+                print(f"Logging error: {e}")
 
 def is_valid_ip(ip):
     """Check if the input is a valid IP address."""
@@ -336,11 +389,18 @@ def index():
 def lookup():
     """Process the lookup form and redirect to results."""
     query = request.form.get('query', '').strip()
+    
+    # If the query is empty, redirect back to the home page
     if not query:
         return redirect(url_for('index'))
     
     # Strip common protocols if present
     query = strip_protocols(query)
+    
+    # Store the query in the session
+    session['last_query'] = query
+    
+    # Logging is now handled by the before_request handler
     
     # Validate the query before proceeding
     if not is_valid_ip(query) and not is_valid_hostname(query):
@@ -369,6 +429,8 @@ def results():
     
     # Strip common protocols if present
     query = strip_protocols(query)
+    
+    # Logging is now handled by the before_request handler
     
     # Determine if the query is an IP address or hostname
     try:
@@ -531,4 +593,16 @@ def export_csv(query_type, query):
         return redirect(url_for('results', query=query))
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    # Add .gitignore entry for logs directory if it doesn't exist
+    gitignore_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '.gitignore')
+    if os.path.exists(gitignore_path):
+        with open(gitignore_path, 'r') as f:
+            gitignore_content = f.read()
+        if 'logs/' not in gitignore_content:
+            with open(gitignore_path, 'a') as f:
+                f.write('\n# Log files\nlogs/\n')
+    else:
+        with open(gitignore_path, 'w') as f:
+            f.write('# Log files\nlogs/\n')
+    
+    app.run(host='0.0.0.0', port=5000, debug=False)

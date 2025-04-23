@@ -34,7 +34,7 @@
             </div>
             
             <div class="results-container">
-                <h2>Investigation Results: {{ query }}</h2>
+                <h2>Investigation Results: {{ query }} {% if not 'error' in data %}<a href="{{ url_for('export_csv', query_type=query_type, query=query) }}" class="copy-btn" title="Download CSV"><i class="fas fa-download"></i></a>{% endif %}</h2>
                 
                 {% if 'error' in data %}
                     <div class="error-message">

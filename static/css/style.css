@@ -121,6 +121,7 @@ header p {
 .search-box.mini {
     padding: 20px;
     margin-bottom: 20px;
+    max-width: 100%;
 }
 
 .input-group {
@@ -189,6 +190,14 @@ button:hover {
     margin-top: 20px;
     width: 100%;
     overflow-x: hidden;
+}
+
+/* Ensure search box and results container have the same width */
+main .search-box.mini,
+.results-container {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
 }
 
 .copy-btn {

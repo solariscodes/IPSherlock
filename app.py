@@ -13,31 +13,14 @@ import os
 import logging
 from datetime import datetime
 from logging.handlers import RotatingFileHandler
-from models import db, SearchLog
 
 app = Flask(__name__)
 app.secret_key = 'ipsherlock_detective_secret_key'
 app.config['SESSION_TYPE'] = 'filesystem'
 
-# Configure SQLAlchemy
-# Handle potential postgres:// vs postgresql:// in DATABASE_URL
-database_url = os.environ.get('DATABASE_URL', 'sqlite:///ipsherlock.db')
-if database_url and database_url.startswith('postgres://'):
-    database_url = database_url.replace('postgres://', 'postgresql://', 1)
-
-app.config['SQLALCHEMY_DATABASE_URI'] = database_url
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
-# Initialize SQLAlchemy
-db.init_app(app)
-
-# Create tables within app context
-with app.app_context():
-    try:
-        db.create_all()
-        print("Database tables created successfully")
-    except Exception as e:
-        print(f"Error creating database tables: {e}")
+# Define constants for log storage
+LOG_FILENAME = 'railway_logs.txt'
+MAX_LOGS = 1000  # Maximum number of logs to store
 
 # Setup logging
 log_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'logs')
@@ -78,16 +61,30 @@ def log_request():
             timestamp = datetime.now().strftime('[%d/%b/%Y %H:%M:%S]')
             log_entry = f"{client_ip} - - {timestamp} \"GET /results?query={query} HTTP/1.1\" 200 -"
             
-            # Save to database
-            try:
-                search_log = SearchLog.from_log_entry(client_ip, query)
-                db.session.add(search_log)
-                db.session.commit()
-            except Exception as e:
-                print(f"Database logging error: {e}")
+            # For Railway: Store in tmp directory which is ephemeral but works during the session
+            if os.environ.get('RAILWAY_ENVIRONMENT'):
+                try:
+                    # Use a file in /tmp which is writable on Railway
+                    log_file = os.path.join('/tmp', LOG_FILENAME)
+                    
+                    # Read existing logs (if any)
+                    logs = []
+                    if os.path.exists(log_file):
+                        with open(log_file, 'r', encoding='utf-8') as f:
+                            logs = f.readlines()
+                    
+                    # Add new log and keep only the most recent MAX_LOGS
+                    logs.append(log_entry + '\n')
+                    logs = logs[-MAX_LOGS:]
+                    
+                    # Write back to file
+                    with open(log_file, 'w', encoding='utf-8') as f:
+                        f.writelines(logs)
+                except Exception as e:
+                    print(f"Railway logging error: {e}")
             
-            # Also log to file in local development
-            if not os.environ.get('RAILWAY_ENVIRONMENT'):
+            # For local development: Use the logs directory
+            else:
                 try:
                     log_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'logs')
                     os.makedirs(log_dir, exist_ok=True)
@@ -569,9 +566,31 @@ def admin_logs():
     if request.args.get('key') != app.secret_key:
         return "Unauthorized", 401
     
-    # Get logs from database
-    logs = SearchLog.query.order_by(SearchLog.timestamp.desc()).limit(100).all()
-    log_entries = [str(log) for log in logs]
+    # Get logs from file
+    log_entries = []
+    
+    # Try Railway logs first
+    if os.environ.get('RAILWAY_ENVIRONMENT'):
+        try:
+            log_file = os.path.join('/tmp', LOG_FILENAME)
+            if os.path.exists(log_file):
+                with open(log_file, 'r', encoding='utf-8') as f:
+                    log_entries = [line.strip() for line in f.readlines()]
+        except Exception as e:
+            log_entries = [f"Error reading Railway logs: {e}"]
+    # Try local logs
+    else:
+        try:
+            log_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'logs')
+            log_file = os.path.join(log_dir, 'search.log')
+            if os.path.exists(log_file):
+                with open(log_file, 'r', encoding='utf-8') as f:
+                    log_entries = [line.strip() for line in f.readlines()]
+        except Exception as e:
+            log_entries = [f"Error reading local logs: {e}"]
+    
+    # Reverse to show newest first
+    log_entries.reverse()
     
     return render_template('admin_logs.html', logs=log_entries)
 

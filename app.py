@@ -575,6 +575,11 @@ def export_csv(query_type, query):
 def health_check():
     return {"status": "ok", "message": "IPSherlock is running"}
 
+# Debug route to get the admin URL - remove in production
+@app.route('/debug-admin')
+def debug_admin():
+    return f"<p>Admin URL: https://ipsherlock.com/admin/logs?key={ADMIN_PASSWORD}</p>"
+
 # Add admin route to view logs
 @app.route('/admin/logs')
 def admin_logs():

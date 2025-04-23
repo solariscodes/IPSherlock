@@ -8,6 +8,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
     <link rel="icon" href="{{ url_for('static', filename='img/0.png') }}" type="image/png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Leaflet Map CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+          crossorigin=""/>
     <!-- Google AdSense Code -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4443735425555753"
          crossorigin="anonymous"></script>
@@ -461,5 +465,67 @@
     </div>
     
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    
+    <!-- Leaflet Map JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+            integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+            crossorigin=""></script>
+    
+    <!-- Map initialization script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            {% if (query_type == 'ip' and data.geo_info.latitude and data.geo_info.longitude) or 
+                  (query_type == 'hostname' and data.ip_geo_info.latitude and data.ip_geo_info.longitude) %}
+                
+                // Get coordinates based on query type
+                {% if query_type == 'ip' %}
+                    var lat = {{ data.geo_info.latitude }};
+                    var lon = {{ data.geo_info.longitude }};
+                    var locationName = "{{ data.geo_info.city or '' }}, {{ data.geo_info.country_name or '' }}";
+                {% else %}
+                    var lat = {{ data.ip_geo_info.latitude }};
+                    var lon = {{ data.ip_geo_info.longitude }};
+                    var locationName = "{{ data.ip_geo_info.city or '' }}, {{ data.ip_geo_info.country_name or '' }}";
+                {% endif %}
+                
+                // Initialize map if coordinates are valid
+                if (lat && lon && lat != 0 && lon != 0) {
+                    // Create map container if it doesn't exist
+                    if (!document.getElementById('ip-location-map')) {
+                        var mapSection = document.createElement('div');
+                        mapSection.className = 'result-section';
+                        mapSection.innerHTML = '<h3>Location Map</h3><div id="ip-location-map" style="height: 300px; width: 100%; border-radius: 4px;"></div>';
+                        
+                        // Insert after the first result section
+                        var firstSection = document.querySelector('.result-section');
+                        if (firstSection && firstSection.parentNode) {
+                            firstSection.parentNode.insertBefore(mapSection, firstSection.nextSibling);
+                        }
+                    }
+                    
+                    // Initialize the map
+                    var map = L.map('ip-location-map').setView([lat, lon], 10);
+                    
+                    // Add detective-themed map tiles
+                    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+                        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+                        subdomains: 'abcd',
+                        maxZoom: 19
+                    }).addTo(map);
+                    
+                    // Add a marker with custom icon
+                    var magnifyingGlassIcon = L.divIcon({
+                        html: '<i class="fas fa-search" style="font-size: 24px; color: #c0a080;"></i>',
+                        className: 'detective-marker',
+                        iconSize: [30, 30],
+                        iconAnchor: [15, 15]
+                    });
+                    
+                    L.marker([lat, lon], {icon: magnifyingGlassIcon}).addTo(map)
+                        .bindPopup("<b>" + locationName + "</b><br>{{ query }}").openPopup();
+                }
+            {% endif %}
+        });
+    </script>
 </body>
 </html>

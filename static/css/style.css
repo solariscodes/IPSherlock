@@ -519,6 +519,51 @@ pre {
     to { transform: rotate(360deg); }
 }
 
+/* Map Styles */
+#ip-location-map {
+    border: 2px solid var(--detective-color);
+    box-shadow: var(--card-shadow);
+    margin-top: 15px;
+    transition: all 0.3s ease;
+}
+
+#ip-location-map:hover {
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+}
+
+.detective-marker i {
+    text-shadow: 0 0 5px rgba(0, 0, 0, 0.7);
+    transition: all 0.3s ease;
+}
+
+.detective-marker i:hover {
+    transform: scale(1.2);
+    color: var(--accent-color) !important;
+}
+
+.leaflet-popup-content-wrapper {
+    background-color: rgba(26, 42, 58, 0.9);
+    color: white;
+    border-radius: 4px;
+    font-family: 'Roboto', sans-serif;
+}
+
+.leaflet-popup-tip {
+    background-color: rgba(26, 42, 58, 0.9);
+}
+
+@media (max-width: 768px) {
+    #ip-location-map {
+        height: 250px !important;
+    }
+}
+
+@media (max-width: 480px) {
+    #ip-location-map {
+        height: 200px !important;
+    }
+}
+
 /* Footer Styles */
 footer {
     text-align: center;

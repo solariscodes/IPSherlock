@@ -13,10 +13,18 @@ import os
 import logging
 from datetime import datetime
 from logging.handlers import RotatingFileHandler
+from models import db, SearchLog
 
 app = Flask(__name__)
 app.secret_key = 'ipsherlock_detective_secret_key'
 app.config['SESSION_TYPE'] = 'filesystem'
+
+# Configure SQLAlchemy
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'sqlite:///ipsherlock.db')
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+# Initialize SQLAlchemy
+db.init_app(app)
 
 # Setup logging
 log_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'logs')
@@ -47,23 +55,37 @@ def log_request():
     if request.path == '/results' and 'query' in request.args:
         query = request.args.get('query', '').strip()
         if query:
-            # Direct file-based logging approach
-            try:
-                log_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'logs')
-                os.makedirs(log_dir, exist_ok=True)
-                log_file = os.path.join(log_dir, 'search.log')
-                
+            # Get client IP, handling proxy headers
+            if request.headers.get('X-Forwarded-For'):
+                client_ip = request.headers.get('X-Forwarded-For', '').split(',')[0].strip()
+            else:
                 client_ip = request.remote_addr
-                timestamp = datetime.now().strftime('[%d/%b/%Y %H:%M:%S]')
-                log_entry = f"{client_ip} - - {timestamp} \"GET /results?query={query} HTTP/1.1\" 200 -\n"
-                
-                # Write directly to the file
-                with open(log_file, 'a', encoding='utf-8') as f:
-                    f.write(log_entry)
-                    f.flush()
-                    os.fsync(f.fileno())  # Force write to disk
+            
+            # Create log entry in same format
+            timestamp = datetime.now().strftime('[%d/%b/%Y %H:%M:%S]')
+            log_entry = f"{client_ip} - - {timestamp} \"GET /results?query={query} HTTP/1.1\" 200 -"
+            
+            # Save to database
+            try:
+                search_log = SearchLog.from_log_entry(client_ip, query)
+                db.session.add(search_log)
+                db.session.commit()
             except Exception as e:
-                print(f"Logging error: {e}")
+                print(f"Database logging error: {e}")
+            
+            # Also log to file in local development
+            if not os.environ.get('RAILWAY_ENVIRONMENT'):
+                try:
+                    log_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'logs')
+                    os.makedirs(log_dir, exist_ok=True)
+                    log_file = os.path.join(log_dir, 'search.log')
+                    
+                    with open(log_file, 'a', encoding='utf-8') as f:
+                        f.write(log_entry + '\n')
+                        f.flush()
+                        os.fsync(f.fileno())  # Force write to disk
+                except Exception as e:
+                    print(f"Logging error: {e}")
 
 def is_valid_ip(ip):
     """Check if the input is a valid IP address."""
@@ -522,6 +544,24 @@ def export_csv(query_type, query):
         # If anything goes wrong, redirect to results page
         return redirect(url_for('results', query=query))
 
+# Create database tables
+@app.before_first_request
+def create_tables():
+    db.create_all()
+
+# Add admin route to view logs
+@app.route('/admin/logs')
+def admin_logs():
+    # Simple authentication - you can enhance this later
+    if request.args.get('key') != app.secret_key:
+        return "Unauthorized", 401
+    
+    # Get logs from database
+    logs = SearchLog.query.order_by(SearchLog.timestamp.desc()).limit(100).all()
+    log_entries = [str(log) for log in logs]
+    
+    return render_template('admin_logs.html', logs=log_entries)
+
 if __name__ == '__main__':
     # Add .gitignore entry for logs directory if it doesn't exist
     gitignore_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '.gitignore')
@@ -535,6 +575,11 @@ if __name__ == '__main__':
         with open(gitignore_path, 'w') as f:
             f.write('# Log files\nlogs/\n')
     
+    # Create database tables
+    with app.app_context():
+        db.create_all()
+    
     # Use Railway's PORT environment variable if available, otherwise default to 5000
     port = int(os.environ.get("PORT", 5000))
+    print(f"Starting server on port {port}")
     app.run(host='0.0.0.0', port=port, debug=False)

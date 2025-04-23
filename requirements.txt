@@ -5,3 +5,5 @@ python-whois==0.7.3
 dnspython==2.0.0
 requests==2.26.0
 ipwhois==1.2.0
+SQLAlchemy==1.4.46
+Flask-SQLAlchemy==2.5.1

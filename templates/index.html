@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IPSherlock - IP & Domain Investigation</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <link rel="icon" href="{{ url_for('static', filename='img/0.png') }}" type="image/png">
+</head>
+<body>
+    <div class="container">
+        <div class="centered-content">
+            <header>
+                <div class="logo-container">
+                    <img src="{{ url_for('static', filename='img/0.png') }}" alt="IPSherlock Logo" class="logo">
+                    <h1><a href="{{ url_for('index') }}" class="title-link">IPSherlock</a></h1>
+                </div>
+                <p>The Detective for IP Addresses & Domains</p>
+            </header>
+            
+            <div class="search-box">
+                <form action="{{ url_for('lookup') }}" method="post" id="lookup-form">
+                    <div class="input-group">
+                        <input type="text" name="query" id="query" placeholder="Enter IP address or hostname" required>
+                        <button type="submit" id="lookup-button">🔍 Lookup</button>
+                    </div>
+                    {% if error %}
+                    <div class="error-message">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <span>{{ error }}</span>
+                    </div>
+                    {% endif %}
+                    <div class="examples">
+                        <p>Examples: 8.8.8.8, google.com</p>
+                        <p class="tagline">Every IP address tells a story. Let's investigate 🔎</p>
+                    </div>
+                    <div class="loading-indicator" id="loading-indicator">
+                        <div class="spinner"></div>
+                        <p>Looking up information...</p>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <footer>
+        <p>&copy; 2025 IPSherlock - The IP & Domain Detective</p>
+    </footer>
+    
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>

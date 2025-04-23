@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IPSherlock - Results for {{ query }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <link rel="icon" href="{{ url_for('static', filename='img/0.png') }}" type="image/png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo-container">
+                <img src="{{ url_for('static', filename='img/0.png') }}" alt="IPSherlock Logo" class="logo">
+                <h1><a href="{{ url_for('index') }}" class="title-link">IPSherlock</a></h1>
+            </div>
+            <p>The Detective for IP Addresses & Domains</p>
+        </header>
+        
+        <main class="results-main">
+            <div class="search-box mini">
+                <form action="{{ url_for('lookup') }}" method="post" id="lookup-form">
+                    <div class="input-group">
+                        <input type="text" name="query" id="query" placeholder="Enter IP address or hostname" value="{{ query }}" required>
+                        <button type="submit" id="lookup-button">🔍 Lookup</button>
+                    </div>
+                    <div class="loading-indicator" id="loading-indicator">
+                        <div class="spinner"></div>
+                        <p>Looking up information...</p>
+                    </div>
+                </form>
+            </div>
+            
+            <div class="results-container">
+                <h2>Investigation Results: {{ query }}</h2>
+                
+                {% if 'error' in data %}
+                    <div class="error-message">
+                        <p>{{ data.error }}</p>
+                    </div>
+                {% else %}
+                    {% if query_type == 'ip' %}
+                        <div class="result-section">
+                            <h3>IP Information</h3>
+                            {% if data.geo_error is defined %}
+                                <div class="warning-message">
+                                    <p>{{ data.geo_error }}</p>
+                                    <p>Showing basic information only.</p>
+                                </div>
+                            {% elif data.geo_note is defined %}
+                                <div class="info-message">
+                                    <p>{{ data.geo_note }}</p>
+                                </div>
+                            {% endif %}
+                            <div class="info-grid">
+                                <div class="info-item">
+                                    <span class="label">IP Address:</span>
+                                    <span class="value">{{ data.ip }}</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="label">Hostname:</span>
+                                    <span class="value">{{ data.hostname }}</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="label">ASN:</span>
+                                    <span class="value">{{ data.asn }}</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="label">ASN Description:</span>
+                                    <span class="value">{{ data.asn_description }}</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="label">Network:</span>
+                                    <span class="value">{{ data.network }}</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="label">Country:</span>
+                                    <span class="value">{{ data.country }}</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="label">Region:</span>
+                                    <span class="value">{{ data.region }}</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="label">City:</span>
+                                    <span class="value">{{ data.city }}</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="label">Postal Code:</span>
+                                    <span class="value">{{ data.postal }}</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="label">Latitude:</span>
+                                    <span class="value">{{ data.latitude }}</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="label">Longitude:</span>
+                                    <span class="value">{{ data.longitude }}</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="label">Timezone:</span>
+                                    <span class="value">{{ data.timezone }}</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="label">Organization:</span>
+                                    <span class="value">{{ data.org }}</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="label">ISP:</span>
+                                    <span class="value">{{ data.isp }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="result-section">
+                            <h3>RDAP Data</h3>
+                            <div class="collapsible-content">
+                                <pre>{{ data.rdap_data | tojson(indent=2) }}</pre>
+                            </div>
+                        </div>
+                        
+                        {% if data.os_tools %}
+                        <div class="result-section">
+                            <h3>OS-Level Network Information</h3>
+                            {% if data.os_tools.nslookup %}
+                            <div class="os-tool-section">
+                                <h4>nslookup Results</h4>
+                                <div class="os-tool-output">
+                                    <pre>{{ data.os_tools.nslookup }}</pre>
+                                </div>
+                            </div>
+                            {% endif %}
+                            
+                            {% if data.os_tools.traceroute %}
+                            <div class="os-tool-section">
+                                <h4>Traceroute Results</h4>
+                                <div class="os-tool-output">
+                                    <pre>{{ data.os_tools.traceroute }}</pre>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                    {% elif query_type == 'hostname' %}
+                        <div class="result-section">
+                            <h3>Hostname Information</h3>
+                            <div class="info-grid">
+                                <div class="info-item">
+                                    <span class="label">Hostname:</span>
+                                    <span class="value">{{ data.hostname }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="result-section">
+                            <h3>IP Addresses</h3>
+                            {% if data.ip_resolution_error is defined %}
+                                <div class="warning-message">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                    <span>{{ data.ip_resolution_error }}</span>
+                                </div>
+                            {% else %}
+                                <div class="info-grid single-column">
+                                    {% for ip in data.ip_addresses %}
+                                        <div class="info-item">
+                                            <span class="value">{{ ip }}</span>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Domain Owner Information Section -->
+                        <div class="result-section">
+                            <h3>Domain Owner Information</h3>
+                            <div class="info-grid">
+                                {% if data.whois_info.person is defined and data.whois_info.person %}
+                                    {% if data.whois_info.person is string %}
+                                        <div class="info-item">
+                                            <span class="label">Person:</span>
+                                            <span class="value">{{ data.whois_info.person }}</span>
+                                        </div>
+                                    {% else %}
+                                        {% for person in data.whois_info.person %}
+                                        <div class="info-item">
+                                            <span class="label">Person:</span>
+                                            <span class="value">{{ person }}</span>
+                                        </div>
+                                        {% endfor %}
+                                    {% endif %}
+                                {% endif %}
+                                
+                                {% if data.whois_info.registrant_name is defined and data.whois_info.registrant_name %}
+                                    <div class="info-item">
+                                        <span class="label">Registrant:</span>
+                                        <span class="value">{{ data.whois_info.registrant_name }}</span>
+                                    </div>
+                                {% endif %}
+                                
+                                {% if data.whois_info.registrant_id is defined and data.whois_info.registrant_id %}
+                                    <div class="info-item">
+                                        <span class="label">Registrant ID:</span>
+                                        <span class="value">{{ data.whois_info.registrant_id }}</span>
+                                    </div>
+                                {% endif %}
+                                
+                                {% if data.whois_info.owner_c is defined and data.whois_info.owner_c %}
+                                    <div class="info-item">
+                                        <span class="label">Owner Contact:</span>
+                                        <span class="value">{{ data.whois_info.owner_c }}</span>
+                                    </div>
+                                {% endif %}
+                                
+                                {% if data.whois_info.tech_c is defined and data.whois_info.tech_c %}
+                                    <div class="info-item">
+                                        <span class="label">Tech Contact:</span>
+                                        <span class="value">{{ data.whois_info.tech_c }}</span>
+                                    </div>
+                                {% endif %}
+                                
+                                {% if data.whois_info.admin_c is defined and data.whois_info.admin_c %}
+                                    <div class="info-item">
+                                        <span class="label">Admin Contact:</span>
+                                        <span class="value">{{ data.whois_info.admin_c }}</span>
+                                    </div>
+                                {% endif %}
+                                
+                                {% if data.whois_info.emails is defined and data.whois_info.emails %}
+                                    {% if data.whois_info.emails is string %}
+                                        <div class="info-item">
+                                            <span class="label">Email:</span>
+                                            <span class="value">{{ data.whois_info.emails }}</span>
+                                        </div>
+                                    {% else %}
+                                        {% for email in data.whois_info.emails %}
+                                        <div class="info-item">
+                                            <span class="label">Email:</span>
+                                            <span class="value">{{ email }}</span>
+                                        </div>
+                                        {% endfor %}
+                                    {% endif %}
+                                {% endif %}
+                                
+                                {% if data.whois_info.email is defined and data.whois_info.email %}
+                                    {% if data.whois_info.email is string %}
+                                        <div class="info-item">
+                                            <span class="label">Email:</span>
+                                            <span class="value">{{ data.whois_info.email }}</span>
+                                        </div>
+                                    {% else %}
+                                        {% for email in data.whois_info.email %}
+                                        <div class="info-item">
+                                            <span class="label">Email:</span>
+                                            <span class="value">{{ email }}</span>
+                                        </div>
+                                        {% endfor %}
+                                    {% endif %}
+                                {% endif %}
+                                
+                                <!-- Domain Registration Dates -->
+                                {% if data.whois_info.creation_date is defined and data.whois_info.creation_date %}
+                                    <div class="info-item">
+                                        <span class="label">Creation Date:</span>
+                                        <span class="value">
+                                            {% if data.whois_info.creation_date is string %}
+                                                {{ data.whois_info.creation_date }}
+                                            {% else %}
+                                                {{ data.whois_info.creation_date[0] }}
+                                            {% endif %}
+                                        </span>
+                                    </div>
+                                {% endif %}
+                                
+                                {% if data.whois_info.expiration_date is defined and data.whois_info.expiration_date %}
+                                    <div class="info-item">
+                                        <span class="label">Expiration Date:</span>
+                                        <span class="value">
+                                            {% if data.whois_info.expiration_date is string %}
+                                                {{ data.whois_info.expiration_date }}
+                                            {% else %}
+                                                {{ data.whois_info.expiration_date[0] }}
+                                            {% endif %}
+                                        </span>
+                                    </div>
+                                {% endif %}
+                                
+                                {% if data.whois_info.updated_date is defined and data.whois_info.updated_date %}
+                                    <div class="info-item">
+                                        <span class="label">Last Updated:</span>
+                                        <span class="value">
+                                            {% if data.whois_info.updated_date is string %}
+                                                {{ data.whois_info.updated_date }}
+                                            {% else %}
+                                                {{ data.whois_info.updated_date[0] }}
+                                            {% endif %}
+                                        </span>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="result-section">
+                            <h3>DNS Records</h3>
+                            <div class="dns-records-container">
+                                <div class="dns-record-group">
+                                    <h4>A Records</h4>
+                                    {% if data.a_records_error is defined %}
+                                        <div class="warning-message">
+                                            <i class="fas fa-exclamation-triangle"></i>
+                                            <span>{{ data.a_records_error }}</span>
+                                        </div>
+                                    {% elif data.a_records|length > 0 %}
+                                        <div class="info-grid single-column">
+                                            {% for record in data.a_records %}
+                                                <div class="info-item">
+                                                    <span class="value">{{ record }}</span>
+                                                </div>
+                                            {% endfor %}
+                                        </div>
+                                    {% else %}
+                                        <div class="warning-message">
+                                            <i class="fas fa-info-circle"></i>
+                                            <span>No A records found for this domain.</span>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="dns-record-group">
+                                    <h4>MX Records</h4>
+                                    {% if data.mx_records_error is defined %}
+                                        <div class="warning-message">
+                                            <i class="fas fa-exclamation-triangle"></i>
+                                            <span>{{ data.mx_records_error }}</span>
+                                        </div>
+                                    {% elif data.mx_records|length > 0 %}
+                                        <div class="info-grid single-column">
+                                            {% for record in data.mx_records %}
+                                                <div class="info-item">
+                                                    <span class="value">{{ record }}</span>
+                                                </div>
+                                            {% endfor %}
+                                        </div>
+                                    {% else %}
+                                        <div class="warning-message">
+                                            <i class="fas fa-info-circle"></i>
+                                            <span>No mail servers (MX records) configured for this domain.</span>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="dns-record-group">
+                                    <h4>NS Records</h4>
+                                    <div class="info-grid single-column">
+                                        {% for record in data.ns_records %}
+                                            <div class="info-item">
+                                                <span class="value">{{ record }}</span>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                
+
+                            </div>
+                        </div>
+                        
+                        {% if data.ip_info and not data.ip_info.get('error') %}
+                        <div class="result-section">
+                            <h3>Primary IP Information</h3>
+                            <div class="info-grid">
+                                <div class="info-item">
+                                    <span class="label">IP Address:</span>
+                                    <span class="value">{{ data.ip_info.ip }}</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="label">ASN:</span>
+                                    <span class="value">{{ data.ip_info.asn }}</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="label">ASN Description:</span>
+                                    <span class="value">{{ data.ip_info.asn_description }}</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="label">Network:</span>
+                                    <span class="value">{{ data.ip_info.network }}</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="label">Country:</span>
+                                    <span class="value">{{ data.ip_info.country }}</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="label">Region:</span>
+                                    <span class="value">{{ data.ip_info.region }}</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="label">City:</span>
+                                    <span class="value">{{ data.ip_info.city }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- TXT Records Section -->
+                        <div class="result-section">
+                            <h3>TXT Records</h3>
+                            <div class="info-grid multi-column">
+                                {% for record in data.txt_records %}
+                                    <div class="info-item compact txt-record-item">
+                                        <span class="value">{{ record }}</span>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        
+                        <div class="result-section">
+                            <h3>OS-Level DNS Information</h3>
+                            <div class="info-grid">
+                                {% if data.os_tools.nslookup %}
+                                <div class="os-tool-output full-width">
+                                    <pre>{{ data.os_tools.nslookup }}</pre>
+                                </div>
+                                {% endif %}
+                                
+                                {% if data.os_tools.host %}
+                                <div class="os-tool-output full-width">
+                                    <pre>{{ data.os_tools.host }}</pre>
+                                </div>
+                                {% endif %}
+                                
+                                {% if data.os_tools.dig %}
+                                <div class="os-tool-output full-width">
+                                    <pre>{{ data.os_tools.dig }}</pre>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        <!-- Full WHOIS Record -->
+                        <div class="result-section">
+                            <h3>Complete WHOIS Record <button class="copy-btn" title="Copy to clipboard" onclick="copyToClipboard()"><i class="fas fa-copy"></i></button> <a href="{{ url_for('export_csv', query_type=query_type, query=query) }}" class="copy-btn" title="Download CSV"><i class="fas fa-download"></i></a></h3>
+                            <div class="collapsible-content">
+                                <pre>{{ data.whois_info | tojson(indent=2) }}</pre>
+                            </div>
+                        </div>
+                    {% endif %}
+                {% endif %}
+                
+                <div class="back-link">
+                    <a href="{{ url_for('index') }}">New Investigation</a>
+                </div>
+            </div>
+        </main>
+        
+        <footer>
+            <p>&copy; 2025 IPSherlock - The IP & Domain Detective</p>
+        </footer>
+    </div>
+    
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>

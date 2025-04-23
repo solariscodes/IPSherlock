@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, Response, session
+from flask import Flask, render_template, request, redirect, url_for, Response, session, send_from_directory
 import socket
 import whois
 import dns.resolver
@@ -352,8 +352,21 @@ def get_host_info(hostname):
 
 @app.route('/')
 def index():
-    """Render the home page with the search form."""
     return render_template('index.html')
+
+@app.route('/sitemap.xml')
+def sitemap():
+    sitemap_xml = '''<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://ipsherlock.com/</loc>
+    <lastmod>2025-04-23</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>1.0</priority>
+  </url>
+</urlset>'''
+    response = Response(sitemap_xml, mimetype='application/xml')
+    return response
 
 @app.route('/lookup', methods=['POST'])
 def lookup():

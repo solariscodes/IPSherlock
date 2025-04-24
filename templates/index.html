@@ -52,11 +52,16 @@
             </header>
             
             <div class="search-box">
+
+                
                 <form action="{{ url_for('lookup') }}" method="post" id="lookup-form">
                     <div class="input-group">
                         <input type="text" name="query" id="query" placeholder="Enter IP address or hostname" required>
                         <button type="submit" id="lookup-button">🔍 Lookup</button>
+                        <button type="button" id="my-ip-button" onclick="checkMyIP(); return false;">My IP</button>
                     </div>
+                    
+
                     {% if error %}
                     <div class="error-message">
                         <i class="fas fa-exclamation-circle"></i>
@@ -127,6 +132,17 @@
     </footer>
     
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    
+    <!-- Script for checking user's public IP -->
+    <script>
+        function checkMyIP() {
+            // Show loading indicator
+            document.getElementById('loading-indicator').style.display = 'flex';
+            
+            // Directly call our server-side endpoint
+            window.location.href = '{{ url_for("check_my_ip") }}';
+        }
+    </script>
     
     <!-- Cookie Consent Banner -->
     <div class="cookie-consent" id="cookieConsent">

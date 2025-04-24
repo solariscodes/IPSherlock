@@ -203,7 +203,7 @@ def get_ip_info(ip):
                             "isp": fallback_data.get("isp", ip_data["isp"]),
                         })
                         geo_success = True
-                        ip_data["geo_note"] = "Using fallback geolocation service (ip-api.com)"
+                        # Removed fallback geolocation message as requested
             except Exception as fallback_error:
                 # Both services failed
                 ip_data["geo_error"] = f"Primary geolocation service error: {first_error}\nFallback service error: {str(fallback_error)}"
@@ -361,6 +361,10 @@ def about():
     # que pode ter restrições específicas
     return render_template('about.html')
 
+@app.route('/privacy')
+def privacy():
+    return render_template('privacy.html')
+
 # Rota alternativa para a página about usando o padrão de URL que sabemos funcionar
 @app.route('/lookup/about')
 def about_alt():
@@ -372,13 +376,19 @@ def sitemap():
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://ipsherlock.com/</loc>
-    <lastmod>2025-04-23</lastmod>
+    <lastmod>2025-04-24</lastmod>
     <changefreq>monthly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://ipsherlock.com/lookup/about</loc>
-    <lastmod>2025-04-23</lastmod>
+    <loc>https://ipsherlock.com/about</loc>
+    <lastmod>2025-04-24</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://ipsherlock.com/privacy</loc>
+    <lastmod>2025-04-24</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>

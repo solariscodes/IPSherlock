@@ -65,7 +65,7 @@
                     {% endif %}
                     <div class="examples">
                         <p>Examples: 8.8.8.8, google.com</p>
-                        <p class="tagline">Every IP address tells a story. Let's investigate 🔎</p>
+                        <p class="tagline">Every digital footprint leaves a clue. Let's crack the case 🔍</p>
                     </div>
                     <div class="loading-indicator" id="loading-indicator">
                         <div class="spinner"></div>
@@ -78,12 +78,12 @@
     
     <!-- Educational Content Section -->
     <div class="content-section">
-        <h2>Understanding IP Addresses & Domains</h2>
+        <h2>The Case Files: IP Addresses & Domains</h2>
         
         <div class="content-grid">
             <div class="content-item">
-                <h3>What is an IP Address?</h3>
-                <p>An Internet Protocol (IP) address is a unique numerical label assigned to each device connected to a computer network. Think of it as a home address for your device on the internet. IP addresses serve two main purposes: identifying the host or network interface, and providing the location of the device in the network.</p>
+                <h3>The Digital Fingerprint: IP Addresses</h3>
+                <p>An Internet Protocol (IP) address is the unique identifier that every device leaves behind on the digital crime scene. Think of it as a fingerprint for your device on the internet. Just as detectives use fingerprints to identify suspects, IP addresses reveal the identity and location of devices on the network.</p>
                 <p>There are two versions of IP addresses in use today:</p>
                 <ul>
                     <li><strong>IPv4</strong>: The original system using 32-bit addresses (e.g., 192.168.1.1)</li>
@@ -92,8 +92,8 @@
             </div>
             
             <div class="content-item">
-                <h3>What is a Domain Name?</h3>
-                <p>Domain names are the human-readable addresses of websites. They translate the numerical IP addresses into memorable names that are easier for people to use. For example, "google.com" is much easier to remember than "142.250.190.78".</p>
+                <h3>The Alias: Domain Names</h3>
+                <p>Domain names are the aliases in our digital investigation. They disguise the numerical IP addresses behind memorable names that are easier for people to track. Just as a detective might follow an alias to find the true identity, we can trace domain names back to their IP addresses. For example, "google.com" is the well-known alias for "142.250.190.78".</p>
                 <p>Domain names are organized in a hierarchical structure:</p>
                 <ul>
                     <li><strong>Top-Level Domain (TLD)</strong>: The rightmost part (.com, .org, .net)</li>
@@ -104,16 +104,16 @@
         </div>
         
         <div class="content-item full-width">
-            <h3>Why Investigate IP Addresses and Domains?</h3>
-            <p>Understanding the details behind IP addresses and domain names is valuable for many reasons:</p>
+            <h3>The Motive: Why Investigate Digital Identities?</h3>
+            <p>Uncovering the secrets behind IP addresses and domain names can solve many digital mysteries:</p>
             <ul>
-                <li><strong>Security Analysis</strong>: Identifying potentially malicious sources of traffic</li>
-                <li><strong>Network Troubleshooting</strong>: Diagnosing connection issues between systems</li>
-                <li><strong>Digital Forensics</strong>: Tracing online activities for investigations</li>
-                <li><strong>Website Ownership Research</strong>: Discovering who operates a particular website</li>
-                <li><strong>Geolocation Verification</strong>: Confirming the physical location of servers or users</li>
+                <li><strong>Security Surveillance</strong>: Identifying suspicious characters in your digital neighborhood</li>
+                <li><strong>Network Detective Work</strong>: Solving connection mysteries between systems</li>
+                <li><strong>Digital Forensics</strong>: Following the trail of digital evidence</li>
+                <li><strong>Ownership Investigation</strong>: Unmasking the operators behind digital facades</li>
+                <li><strong>Location Tracking</strong>: Pinpointing the physical hideouts of servers or users</li>
             </ul>
-            <p>IPSherlock provides comprehensive tools to investigate both IP addresses and domains, giving you detailed information that would otherwise require multiple separate tools and services.</p>
+            <p>IPSherlock is your digital detective agency, providing a complete investigative toolkit for IP addresses and domains. We gather the evidence and present the case file in one place, saving you from having to piece together clues from multiple sources.</p>
         </div>
     </div>
     
@@ -122,9 +122,43 @@
         <div class="footer-links">
             <a href="{{ url_for('index') }}" class="active">Home</a>
             <a href="{{ url_for('about_alt') }}">About</a>
+            <a href="{{ url_for('privacy') }}">Privacy Policy</a>
         </div>
     </footer>
     
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    
+    <!-- Cookie Consent Banner -->
+    <div class="cookie-consent" id="cookieConsent">
+        <div class="cookie-text">
+            <p>This detective agency uses digital tracking tools (cookies) to enhance your investigation experience. By accepting, you acknowledge our use of cookies for essential site functionality and analytics. Read our <a href="{{ url_for('privacy') }}">Privacy Policy</a> for more details on our investigative methods.</p>
+        </div>
+        <div class="cookie-buttons">
+            <button class="cookie-btn cookie-accept" id="acceptCookies">Accept</button>
+            <a href="{{ url_for('privacy') }}" class="cookie-btn cookie-learn">Learn More</a>
+        </div>
+    </div>
+    
+    <script>
+        // Cookie Consent Management
+        document.addEventListener('DOMContentLoaded', function() {
+            const cookieConsent = document.getElementById('cookieConsent');
+            const acceptCookies = document.getElementById('acceptCookies');
+            
+            // Check if user has already accepted cookies
+            if (!localStorage.getItem('cookiesAccepted')) {
+                // Show the cookie consent banner with a slight delay
+                setTimeout(function() {
+                    cookieConsent.classList.add('show');
+                }, 1000);
+            }
+            
+            // Handle accept button click
+            acceptCookies.addEventListener('click', function() {
+                localStorage.setItem('cookiesAccepted', 'true');
+                cookieConsent.classList.remove('show');
+            });
+        });
+    </script>
 </body>
 </html>

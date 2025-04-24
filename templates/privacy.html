@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Privacy Policy - IPSherlock</title>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="IPSherlock Privacy Policy - Learn how we handle your data and protect your privacy when using our IP and domain investigation tools.">
+    <meta name="keywords" content="privacy policy, data protection, IP lookup privacy, domain lookup privacy">
+    <meta name="author" content="IPSherlock">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://ipsherlock.com/privacy">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <link rel="icon" href="{{ url_for('static', filename='img/0.png') }}" type="image/png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <div class="centered-content">
+            <header>
+                <div class="logo-container">
+                    <img src="{{ url_for('static', filename='img/0.png') }}" alt="IPSherlock Logo" class="logo">
+                    <h1><a href="{{ url_for('index') }}" class="title-link">IPSherlock</a></h1>
+                </div>
+                <p>The Detective for IP Addresses & Domains</p>
+            </header>
+            
+            <div class="privacy-section">
+            <h1>Confidential Case Files: Privacy Policy</h1>
+            <p class="last-updated">Case Updated: April 24, 2025</p>
+            
+            <div class="privacy-intro">
+                <p>At IPSherlock Detective Agency, we treat your information with the same confidentiality we apply to our most sensitive cases. This dossier explains our handling protocols for your data.</p>
+            </div>
+            
+            <h2>Evidence Gathered</h2>
+            <p>We collect only essential clues to conduct our digital investigations:</p>
+            <ul>
+                <li>The IP addresses or domain names you submit for investigation</li>
+                <li>Basic session information required for our detective tools to function properly</li>
+            </ul>
+            
+            <h2>How We Process Your Case Files</h2>
+            <p>We use your information strictly for:</p>
+            <ul>
+                <li>Conducting thorough digital investigations</li>
+                <li>Enhancing our detective methodology</li>
+                <li>Maintaining the security of our investigation platform</li>
+            </ul>
+            
+            <h2>Digital Fingerprints (Cookies)</h2>
+            <p>We employ essential digital tracking tools (cookies) to maintain case continuity. These are necessary for features like preserving your most recent investigation parameters.</p>
+            
+            <h2>Our Network of Informants</h2>
+            <p>To deliver accurate investigation results, we consult with trusted sources:</p>
+            <ul>
+                <li>WHOIS databases to uncover domain ownership records</li>
+                <li>IP geolocation services to track digital footprints to physical locations</li>
+                <li>DNS services to decode the aliases of digital entities</li>
+            </ul>
+            
+            <h2>Case File Security</h2>
+            <p>We maintain a strict "no archives" policy for your investigation history. All temporary case materials are protected with advanced security protocols during processing.</p>
+            
+            </div>
+        </div>
+    </div>
+    
+    <footer>
+        <p>&copy; 2025 IPSherlock Detective Agency. All rights reserved.</p>
+        <div class="footer-links">
+            <a href="{{ url_for('index') }}">Home</a>
+            <a href="{{ url_for('about_alt') }}">About</a>
+            <a href="{{ url_for('privacy') }}" class="active">Privacy Policy</a>
+        </div>
+    </footer>
+    
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    
+    <!-- Cookie Consent Banner -->
+    <div class="cookie-consent" id="cookieConsent">
+        <div class="cookie-text">
+            <p>This detective agency uses digital tracking tools (cookies) to enhance your investigation experience. By accepting, you acknowledge our use of cookies for essential site functionality and analytics. Read our <a href="{{ url_for('privacy') }}">Privacy Policy</a> for more details on our investigative methods.</p>
+        </div>
+        <div class="cookie-buttons">
+            <button class="cookie-btn cookie-accept" id="acceptCookies">Accept</button>
+            <a href="{{ url_for('privacy') }}" class="cookie-btn cookie-learn">Learn More</a>
+        </div>
+    </div>
+    
+    <script>
+        // Cookie Consent Management
+        document.addEventListener('DOMContentLoaded', function() {
+            const cookieConsent = document.getElementById('cookieConsent');
+            const acceptCookies = document.getElementById('acceptCookies');
+            
+            // Check if user has already accepted cookies
+            if (!localStorage.getItem('cookiesAccepted')) {
+                // Show the cookie consent banner with a slight delay
+                setTimeout(function() {
+                    cookieConsent.classList.add('show');
+                }, 1000);
+            }
+            
+            // Handle accept button click
+            acceptCookies.addEventListener('click', function() {
+                localStorage.setItem('cookiesAccepted', 'true');
+                cookieConsent.classList.remove('show');
+            });
+        });
+    </script>
+</body>
+</html>

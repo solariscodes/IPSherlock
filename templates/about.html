@@ -50,13 +50,13 @@
         
         <main class="about-main">
             <section class="about-section">
-                <h2>About IPSherlock</h2>
-                <p>IPSherlock is a comprehensive tool designed to help users investigate and gather detailed information about IP addresses and domain names. Just like a detective, IPSherlock uncovers the hidden details behind network identifiers.</p>
+                <h2>The Case File: About IPSherlock</h2>
+                <p>IPSherlock is your digital detective agency, specialized in uncovering the mysteries behind IP addresses and domain names. Like a skilled investigator, we reveal the hidden clues and connections in the digital world that others might miss.</p>
                 
-                <h3>Our Mission</h3>
-                <p>Our mission is to provide a simple yet powerful interface for network investigations, making technical information accessible to everyone from IT professionals to curious individuals.</p>
+                <h3>The Detective's Oath</h3>
+                <p>Our mission is to provide a powerful investigative toolkit that makes the complex world of network forensics accessible to everyone - from cybersecurity professionals to curious digital citizens seeking answers.</p>
                 
-                <h3>Key Features</h3>
+                <h3>Our Investigation Tools</h3>
                 <ul class="feature-list">
                     <li><strong>IP Address Lookup:</strong> Get detailed information about any IP address including geolocation, ISP, organization, and more.</li>
                     <li><strong>Domain Investigation:</strong> Uncover registration details, DNS records, and hosting information for any domain name.</li>
@@ -65,19 +65,19 @@
                     <li><strong>Data Export:</strong> Download investigation results in CSV format for further analysis or record-keeping.</li>
                 </ul>
                 
-                <h3>How It Works</h3>
-                <p>IPSherlock uses multiple reliable data sources and APIs to gather and compile information about IP addresses and domains. Our system processes this data and presents it in an organized, easy-to-understand format with a detective-themed interface.</p>
+                <h3>The Investigation Process</h3>
+                <p>IPSherlock employs a network of informants (reliable data sources and APIs) to gather intelligence about IP addresses and domains. Our forensic system analyzes this evidence and presents a comprehensive case file in an organized, easy-to-understand format with our signature detective approach.</p>
                 
-                <h3>Privacy & Security</h3>
-                <p>We respect your privacy. IPSherlock doesn't store search queries or personal information. All lookups are performed in real-time and results are displayed directly to you without being saved on our servers.</p>
+                <h3>Confidentiality Guarantee</h3>
+                <p>We operate with the utmost discretion. IPSherlock doesn't maintain records of your investigations or personal information. All case work is conducted in real-time and findings are delivered directly to you without being archived in our evidence room.</p>
                 
                 <!-- Additional Educational Content -->
-                <h3>Understanding Network Investigation</h3>
+                <h3>The Art of Digital Investigation</h3>
                 
                 <div class="about-content-grid">
                     <div class="about-content-item">
-                        <h4>Common Uses for IP & Domain Lookups</h4>
-                        <p>Network investigation tools like IPSherlock serve many practical purposes in today's digital landscape:</p>
+                        <h4>Cases We Solve</h4>
+                        <p>Our digital detective work serves many critical purposes in today's interconnected world:</p>
                         <ul>
                             <li><strong>Cybersecurity</strong>: Identifying the source of suspicious traffic or potential threats</li>
                             <li><strong>Website Verification</strong>: Confirming the legitimacy of websites before sharing sensitive information</li>
@@ -88,8 +88,8 @@
                     </div>
                     
                     <div class="about-content-item">
-                        <h4>The Technology Behind IPSherlock</h4>
-                        <p>Our tool integrates several technologies to provide comprehensive network information:</p>
+                        <h4>Our Detective Methods</h4>
+                        <p>We employ a sophisticated array of investigative techniques to crack each case:</p>
                         <ul>
                             <li><strong>WHOIS Databases</strong>: Querying domain registration records from global registrars</li>
                             <li><strong>DNS Resolution</strong>: Examining the Domain Name System to understand how domains are configured</li>
@@ -101,15 +101,13 @@
                 </div>
                 
                 <div class="about-content-item full-width">
-                    <h4>The Importance of Network Literacy</h4>
-                    <p>In today's interconnected world, understanding the basics of how the internet works is increasingly important. Network literacy—the ability to understand and navigate digital networks—has become a valuable skill for everyone from casual internet users to IT professionals.</p>
-                    <p>Tools like IPSherlock help demystify the technical infrastructure that powers our online experiences. By making this information accessible and understandable, we hope to contribute to greater digital literacy and safer online practices for all users.</p>
-                    <p>Whether you're verifying the source of an email, troubleshooting a connection issue, or simply curious about how websites are structured, IPSherlock provides the information you need in a clear, organized format.</p>
+                    <h4>Why Everyone Needs a Digital Detective</h4>
+                    <p>In today's digital landscape, understanding the hidden connections of the internet is no longer optional. Digital literacy—the ability to read clues and follow trails in the online world—has become an essential skill for everyone navigating the web.</p>
+                    <p>IPSherlock serves as your personal investigator, decoding the complex evidence that makes up our digital experiences. By transforming technical clues into clear insights, we empower you to make informed decisions and protect your digital territory.</p>
+                    <p>Whether you're tracking down suspicious email origins, solving connectivity mysteries, or simply curious about the structure behind a website's facade, IPSherlock assembles the complete case file in a clear, organized dossier.</p>
                 </div>
                 
-                <div class="cta-container">
-                    <a href="{{ url_for('index') }}" class="cta-button">Try IPSherlock Now</a>
-                </div>
+
             </section>
         </main>
         
@@ -118,10 +116,44 @@
             <div class="footer-links">
                 <a href="{{ url_for('index') }}">Home</a>
                 <a href="{{ url_for('about_alt') }}" class="active">About</a>
+                <a href="{{ url_for('privacy') }}">Privacy Policy</a>
             </div>
         </footer>
     </div>
     
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    
+    <!-- Cookie Consent Banner -->
+    <div class="cookie-consent" id="cookieConsent">
+        <div class="cookie-text">
+            <p>This detective agency uses digital tracking tools (cookies) to enhance your investigation experience. By accepting, you acknowledge our use of cookies for essential site functionality and analytics. Read our <a href="{{ url_for('privacy') }}">Privacy Policy</a> for more details on our investigative methods.</p>
+        </div>
+        <div class="cookie-buttons">
+            <button class="cookie-btn cookie-accept" id="acceptCookies">Accept</button>
+            <a href="{{ url_for('privacy') }}" class="cookie-btn cookie-learn">Learn More</a>
+        </div>
+    </div>
+    
+    <script>
+        // Cookie Consent Management
+        document.addEventListener('DOMContentLoaded', function() {
+            const cookieConsent = document.getElementById('cookieConsent');
+            const acceptCookies = document.getElementById('acceptCookies');
+            
+            // Check if user has already accepted cookies
+            if (!localStorage.getItem('cookiesAccepted')) {
+                // Show the cookie consent banner with a slight delay
+                setTimeout(function() {
+                    cookieConsent.classList.add('show');
+                }, 1000);
+            }
+            
+            // Handle accept button click
+            acceptCookies.addEventListener('click', function() {
+                localStorage.setItem('cookiesAccepted', 'true');
+                cookieConsent.classList.remove('show');
+            });
+        });
+    </script>
 </body>
 </html>

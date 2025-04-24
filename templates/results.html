@@ -15,6 +15,15 @@
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
     <link rel="icon" href="{{ url_for('static', filename='img/0.png') }}" type="image/png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Leaflet Map CSS and JS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+          crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+            integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+            crossorigin=""></script>
+            
     <!-- Google AdSense Code -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4443735425555753"
          crossorigin="anonymous"></script>
@@ -124,6 +133,64 @@
                             </div>
                         </div>
                         
+                        <!-- Location Map Section -->
+                        {% if data.latitude is defined and data.longitude is defined and data.latitude is not none and data.longitude is not none %}
+                        <div class="result-section">
+                            <h3>Location Map</h3>
+                            <div id="location-map" style="height: 300px; width: 100%; border-radius: 8px; margin-top: 15px; border: 2px solid #2c3e50;"></div>
+                            <script>
+                                document.addEventListener('DOMContentLoaded', function() {
+                                    // Initialize the map
+                                    var map = L.map('location-map').setView([{{ data.latitude }}, {{ data.longitude }}], 10);
+                                    
+                                    // Add the OpenStreetMap tiles
+                                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                                        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+                                        maxZoom: 18
+                                    }).addTo(map);
+                                    
+                                    // Add a marker with location information
+                                    var locationInfo = "";
+                                    {% if data.city != "N/A" %}
+                                        locationInfo += "{{ data.city }}";
+                                    {% endif %}
+                                    
+                                    {% if data.region != "N/A" %}
+                                        {% if data.city != "N/A" %}
+                                            locationInfo += ", ";
+                                        {% endif %}
+                                        locationInfo += "{{ data.region }}";
+                                    {% endif %}
+                                    
+                                    {% if data.country != "N/A" %}
+                                        {% if data.city != "N/A" or data.region != "N/A" %}
+                                            locationInfo += ", ";
+                                        {% endif %}
+                                        locationInfo += "{{ data.country }}";
+                                    {% endif %}
+                                    
+                                    if (locationInfo === "") {
+                                        locationInfo = "Location: {{ data.latitude }}, {{ data.longitude }}";
+                                    }
+                                    
+                                    // Create a custom detective marker icon
+                                    var detectiveIcon = L.divIcon({
+                                        html: '<i class="fas fa-search" style="font-size: 24px; color: #2c3e50;"></i>',
+                                        className: 'detective-marker',
+                                        iconSize: [30, 30],
+                                        iconAnchor: [15, 15]
+                                    });
+                                    
+                                    // Add marker with popup
+                                    L.marker([{{ data.latitude }}, {{ data.longitude }}], {icon: detectiveIcon})
+                                        .addTo(map)
+                                        .bindPopup("<strong>IP: {{ data.ip }}</strong><br>" + locationInfo)
+                                        .openPopup();
+                                });
+                            </script>
+                        </div>
+                        {% endif %}
+                        
                         <div class="result-section">
                             <h3>RDAP Data</h3>
                             <div class="collapsible-content">
@@ -181,6 +248,64 @@
                                 </div>
                             {% endif %}
                         </div>
+                        
+                        <!-- Location Map Section for Domain -->
+                        {% if data.ip_info is defined and data.ip_info.latitude is defined and data.ip_info.longitude is defined and data.ip_info.latitude is not none and data.ip_info.longitude is not none %}
+                        <div class="result-section">
+                            <h3>Server Location Map</h3>
+                            <div id="location-map" style="height: 300px; width: 100%; border-radius: 8px; margin-top: 15px; border: 2px solid #2c3e50;"></div>
+                            <script>
+                                document.addEventListener('DOMContentLoaded', function() {
+                                    // Initialize the map
+                                    var map = L.map('location-map').setView([{{ data.ip_info.latitude }}, {{ data.ip_info.longitude }}], 10);
+                                    
+                                    // Add the OpenStreetMap tiles
+                                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                                        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+                                        maxZoom: 18
+                                    }).addTo(map);
+                                    
+                                    // Add a marker with location information
+                                    var locationInfo = "";
+                                    {% if data.ip_info.city != "N/A" %}
+                                        locationInfo += "{{ data.ip_info.city }}";
+                                    {% endif %}
+                                    
+                                    {% if data.ip_info.region != "N/A" %}
+                                        {% if data.ip_info.city != "N/A" %}
+                                            locationInfo += ", ";
+                                        {% endif %}
+                                        locationInfo += "{{ data.ip_info.region }}";
+                                    {% endif %}
+                                    
+                                    {% if data.ip_info.country != "N/A" %}
+                                        {% if data.ip_info.city != "N/A" or data.ip_info.region != "N/A" %}
+                                            locationInfo += ", ";
+                                        {% endif %}
+                                        locationInfo += "{{ data.ip_info.country }}";
+                                    {% endif %}
+                                    
+                                    if (locationInfo === "") {
+                                        locationInfo = "Location: {{ data.ip_info.latitude }}, {{ data.ip_info.longitude }}";
+                                    }
+                                    
+                                    // Create a custom detective marker icon
+                                    var detectiveIcon = L.divIcon({
+                                        html: '<i class="fas fa-search" style="font-size: 24px; color: #2c3e50;"></i>',
+                                        className: 'detective-marker',
+                                        iconSize: [30, 30],
+                                        iconAnchor: [15, 15]
+                                    });
+                                    
+                                    // Add marker with popup
+                                    L.marker([{{ data.ip_info.latitude }}, {{ data.ip_info.longitude }}], {icon: detectiveIcon})
+                                        .addTo(map)
+                                        .bindPopup("<strong>Domain: {{ data.hostname }}</strong><br>" + locationInfo)
+                                        .openPopup();
+                                });
+                            </script>
+                        </div>
+                        {% endif %}
                         
                         <!-- Domain Owner Information Section -->
                         <div class="result-section">
@@ -512,11 +637,43 @@
         <div class="footer-links">
             <a href="{{ url_for('index') }}">Home</a>
             <a href="{{ url_for('about_alt') }}">About</a>
+            <a href="{{ url_for('privacy') }}">Privacy Policy</a>
         </div>
     </footer>
     
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
     
-
+    <!-- Cookie Consent Banner -->
+    <div class="cookie-consent" id="cookieConsent">
+        <div class="cookie-text">
+            <p>This detective agency uses digital tracking tools (cookies) to enhance your investigation experience. By accepting, you acknowledge our use of cookies for essential site functionality and analytics. Read our <a href="{{ url_for('privacy') }}">Privacy Policy</a> for more details on our investigative methods.</p>
+        </div>
+        <div class="cookie-buttons">
+            <button class="cookie-btn cookie-accept" id="acceptCookies">Accept</button>
+            <a href="{{ url_for('privacy') }}" class="cookie-btn cookie-learn">Learn More</a>
+        </div>
+    </div>
+    
+    <script>
+        // Cookie Consent Management
+        document.addEventListener('DOMContentLoaded', function() {
+            const cookieConsent = document.getElementById('cookieConsent');
+            const acceptCookies = document.getElementById('acceptCookies');
+            
+            // Check if user has already accepted cookies
+            if (!localStorage.getItem('cookiesAccepted')) {
+                // Show the cookie consent banner with a slight delay
+                setTimeout(function() {
+                    cookieConsent.classList.add('show');
+                }, 1000);
+            }
+            
+            // Handle accept button click
+            acceptCookies.addEventListener('click', function() {
+                localStorage.setItem('cookiesAccepted', 'true');
+                cookieConsent.classList.remove('show');
+            });
+        });
+    </script>
 </body>
 </html>

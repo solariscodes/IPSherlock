@@ -804,10 +804,12 @@ footer {
 }
 
 .about-section {
-    background-color: white;
+    background-color: rgba(255, 255, 255, 0.7);
     border-radius: 8px;
-    box-shadow: var(--card-shadow);
-    padding: 25px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    padding: 20px;
+    border-top: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--border-color);
 }
 
 .about-content-grid {
@@ -834,27 +836,39 @@ footer {
 }
 
 .about-section h2 {
-    color: var(--primary-color);
-    margin-bottom: 20px;
-    font-family: 'Playfair Display', serif;
+    color: var(--light-text);
+    text-align: center;
+    margin-bottom: 15px;
+    font-family: 'Roboto', sans-serif;
+    font-size: 1.4rem;
+    font-weight: 400;
+    position: relative;
 }
 
 .about-section h3 {
-    color: var(--secondary-color);
-    margin: 25px 0 10px;
-    font-family: 'Playfair Display', serif;
+    color: var(--light-text);
+    margin-bottom: 10px;
+    font-size: 1.1rem;
+    font-weight: 500;
+    font-family: 'Roboto', sans-serif;
 }
 
-.about-content-item h4 {
-    color: var(--primary-color);
-    font-size: 1.1rem;
+.about-section .content-item h3 {
+    color: var(--light-text);
     margin-bottom: 10px;
+    font-size: 1.1rem;
     font-weight: 500;
 }
 
+.about-section p, .about-section ul, .about-section li {
+    color: var(--light-text);
+    line-height: 1.5;
+    font-size: 0.85rem;
+}
+
 .about-section p {
-    margin-bottom: 15px;
-    line-height: 1.7;
+    margin-bottom: 10px;
+    line-height: 1.5;
 }
 
 .feature-list {
@@ -1150,11 +1164,13 @@ footer {
 }
 
 .privacy-section {
-    background-color: white;
+    background-color: rgba(255, 255, 255, 0.7);
     border-radius: 8px;
-    box-shadow: var(--card-shadow);
-    padding: 30px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    padding: 20px;
     margin-bottom: 30px;
+    border-top: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--border-color);
 }
 
 .results-content-section h3 {
@@ -1177,38 +1193,36 @@ footer {
     font-weight: 500;
 }
 
-.privacy-section h1 {
-    color: var(--primary-color);
-    margin-bottom: 20px;
-    font-family: 'Playfair Display', serif;
-    font-size: 2.2rem;
-}
-
 .privacy-section h2 {
-    color: var(--secondary-color);
-    margin: 30px 0 20px;
-    font-size: 1.8rem;
-    font-family: 'Playfair Display', serif;
+    color: var(--light-text);
+    text-align: center;
+    margin-bottom: 15px;
+    font-family: 'Roboto', sans-serif;
+    font-size: 1.4rem;
+    font-weight: 400;
+    position: relative;
 }
 
 .privacy-section h3 {
     color: var(--light-text);
-    margin: 20px 0 10px;
+    margin-bottom: 10px;
     font-size: 1.1rem;
     font-weight: 500;
+    font-family: 'Roboto', sans-serif;
 }
 
-.privacy-section p, .privacy-section li {
-    margin-bottom: 15px;
-    line-height: 1.8;
-    color: var(--text-color);
-    font-size: 1.1rem;
-    text-align: justify;
+/* Remove duplicate h3 rule */
+
+.privacy-section p, .privacy-section ul, .privacy-section li {
+    color: var(--light-text);
+    line-height: 1.5;
+    font-size: 0.85rem;
+    margin-bottom: 10px;
 }
 
 .privacy-section ul {
-    padding-left: 25px;
-    margin-bottom: 25px;
+    padding-left: 20px;
+    margin-bottom: 10px;
 }
 
 .privacy-section .last-updated {
@@ -1218,12 +1232,12 @@ footer {
 }
 
 .privacy-section .privacy-intro {
-    border-left: 4px solid var(--primary-color);
-    margin: 25px 0;
-    background-color: rgba(248, 249, 250, 0.5);
-    padding: 20px 20px 10px 20px;
-    border-radius: 6px;
-    font-size: 1.2rem;
+    border-left: 1px solid var(--border-color);
+    margin: 10px 0;
+    background-color: transparent;
+    padding: 0 0 0 15px;
+    border-radius: 0;
+    font-size: 0.85rem;
 }
 
 .privacy-section .contact-info {

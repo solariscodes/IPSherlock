@@ -609,6 +609,26 @@ def export_csv(query_type, query):
         # If anything goes wrong, redirect to results page
         return redirect(url_for('results', query=query))
 
+# Route for users to check their own IP address directly from Flask
+@app.route('/check-my-ip')
+def check_my_ip():
+    # Get client IP address directly from Flask's request object
+    # First check for X-Forwarded-For header (common in proxies/load balancers)
+    if request.headers.get('X-Forwarded-For'):
+        # X-Forwarded-For can contain multiple IPs, the first one is the client's
+        client_ip = request.headers.get('X-Forwarded-For', '').split(',')[0].strip()
+    else:
+        # If no forwarding header, use the direct remote address
+        client_ip = request.remote_addr
+    
+    # Redirect to results page with the user's IP address
+    return redirect(url_for('results', query=client_ip))
+
+# Route to show design options
+@app.route('/design-options')
+def design_options():
+    return send_from_directory(os.path.dirname(os.path.abspath(__file__)), 'design_options.html')
+
 # This route will be used to check if the app is running
 @app.route('/health')
 def health_check():

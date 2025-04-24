@@ -459,12 +459,52 @@
                 <div class="back-link">
                     <a href="{{ url_for('index') }}">New Investigation</a>
                 </div>
+                
+                <!-- Educational Content for Results Page -->
+                {% if not 'error' in data %}
+                <div class="results-content-section">
+                    <h3>Understanding Your Results</h3>
+                    
+                    {% if query_type == 'ip' %}
+                    <div class="results-content-item">
+                        <h4>About IP Information</h4>
+                        <p>The IP address you searched ({{ query }}) has revealed details about its network allocation, geographical location, and associated organizations. Here's what this information means:</p>
+                        <ul>
+                            <li><strong>ASN (Autonomous System Number)</strong>: A unique identifier assigned to a network or group of networks managed by a single organization.</li>
+                            <li><strong>Network</strong>: The IP range that includes your searched address, typically shown in CIDR notation.</li>
+                            <li><strong>Geolocation Data</strong>: The physical location associated with this IP, which may be approximate based on network routing.</li>
+                            <li><strong>Organization/ISP</strong>: The entity that owns or manages this IP address range.</li>
+                        </ul>
+                        <p>This information is valuable for network troubleshooting, security analysis, and understanding the source of network traffic.</p>
+                    </div>
+                    {% elif query_type == 'hostname' %}
+                    <div class="results-content-item">
+                        <h4>About Domain Information</h4>
+                        <p>The domain you searched ({{ query }}) has revealed details about its registration, DNS configuration, and associated IP addresses. Here's what this information means:</p>
+                        <ul>
+                            <li><strong>WHOIS Data</strong>: Registration information including when the domain was created, when it expires, and (sometimes) who owns it.</li>
+                            <li><strong>DNS Records</strong>: Configuration entries that control how the domain connects to services like websites, email, and other internet resources.</li>
+                            <li><strong>IP Addresses</strong>: The numerical addresses where this domain's services are hosted.</li>
+                        </ul>
+                        <p>This information is useful for website ownership research, email configuration, and understanding a domain's technical setup.</p>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="results-content-item">
+                        <h4>How to Use This Data</h4>
+                        <p>The information displayed above can be used in several ways:</p>
+                        <ul>
+                            <li><strong>For IT Professionals</strong>: Troubleshoot network issues, verify DNS configurations, or investigate security incidents.</li>
+                            <li><strong>For Researchers</strong>: Gather technical information about online services or verify the authenticity of websites.</li>
+                            <li><strong>For Business Users</strong>: Verify information about potential partners or check competitors' technical setups.</li>
+                        </ul>
+                        <p>You can download this data in CSV format using the download button, or copy specific sections using the copy buttons next to each section.</p>
+                    </div>
+                </div>
+                {% endif %}
             </div>
         </main>
         
-        <footer>
-            <p>&copy; 2025 IPSherlock - The IP & Domain Detective</p>
-        </footer>
     </div>
     
     <footer>

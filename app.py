@@ -1025,32 +1025,56 @@ def admin_logs():
     # Format logs to highlight IPv6 addresses and honeypot entries
     formatted_logs = []
     for log in log_entries:
-        # Check if this is a honeypot entry
-        if '[HONEYPOT]' in log:
-            # Remove the [HONEYPOT] tag for display
-            clean_log = log.replace('[HONEYPOT] ', '')
-            
-            # Check if it also contains an IPv6 address
-            if '(IPv6)' in clean_log:
-                ipv6_part = clean_log.split(' (IPv6)')[0]
-                rest_of_log = clean_log.split(' (IPv6)')[1]
-                # Format with both honeypot and IPv6 highlighting
-                formatted_log = f'<span class="honeypot"><span class="ipv6">{ipv6_part} (IPv6)</span>{rest_of_log} 🎣</span>'
+        try:
+            # Check if this is a honeypot entry
+            if '[HONEYPOT]' in log:
+                # Remove the [HONEYPOT] tag for display but keep the rest intact
+                clean_log = log.replace('[HONEYPOT] ', '')
+                
+                # Check if it also contains an IPv6 address
+                if '(IPv6)' in clean_log:
+                    # For IPv6 addresses, we need special handling
+                    parts = clean_log.split(' | ')
+                    if len(parts) >= 1:
+                        ip_part = parts[0]  # This should be "IP (IPv6)"
+                        rest = ' | '.join(parts[1:]) if len(parts) > 1 else ''
+                        # Format with both honeypot and IPv6 highlighting
+                        formatted_log = f'<span class="honeypot"><span class="ipv6">{ip_part}</span> | {rest} 🎣</span>'
+                    else:
+                        # Fallback if parsing fails
+                        formatted_log = f'<span class="honeypot">{clean_log} 🎣</span>'
+                else:
+                    # For IPv4 addresses, we can use a simpler approach
+                    parts = clean_log.split(' | ')
+                    if len(parts) >= 1:
+                        ip_part = parts[0]  # This should be "IP (IPv4)"
+                        rest = ' | '.join(parts[1:]) if len(parts) > 1 else ''
+                        # Format with honeypot highlighting
+                        formatted_log = f'<span class="honeypot"><strong>{ip_part}</strong> | {rest} 🎣</span>'
+                    else:
+                        # Fallback if parsing fails
+                        formatted_log = f'<span class="honeypot">{clean_log} 🎣</span>'
+                
+                formatted_logs.append(formatted_log)
+            # Regular IPv6 entry (not honeypot)
+            elif '(IPv6)' in log:
+                # Find the IPv6 address (assuming it's at the beginning of the log)
+                parts = log.split(' | ')
+                if len(parts) >= 1:
+                    ip_part = parts[0]  # This should be "IP (IPv6)"
+                    rest = ' | '.join(parts[1:]) if len(parts) > 1 else ''
+                    # Format with HTML
+                    formatted_log = f'<span class="ipv6">{ip_part}</span> | {rest}'
+                else:
+                    # Fallback if parsing fails
+                    formatted_log = log
+                formatted_logs.append(formatted_log)
             else:
-                # Just honeypot formatting
-                formatted_log = f'<span class="honeypot">{clean_log} 🎣</span>'
-            
-            formatted_logs.append(formatted_log)
-        # Regular IPv6 entry (not honeypot)
-        elif '(IPv6)' in log:
-            # Find the IPv6 address (assuming it's at the beginning of the log)
-            ipv6_part = log.split(' (IPv6)')[0]
-            rest_of_log = log.split(' (IPv6)')[1]
-            # Format with HTML
-            formatted_log = f'<span class="ipv6">{ipv6_part} (IPv6)</span>{rest_of_log}'
-            formatted_logs.append(formatted_log)
-        else:
-            # Regular log entry
+                # Regular log entry
+                formatted_logs.append(log)
+        except Exception as e:
+            # If any formatting fails, add the original log
+            print(f"Error formatting log: {e}")
             formatted_logs.append(log)
     
     # Check if access log file exists

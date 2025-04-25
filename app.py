@@ -100,28 +100,6 @@ def save_visitor_data():
 # Load visitor data at startup
 load_visitor_data()
 
-# Add a startup honeypot entry to ensure there's always at least one entry in the logs
-try:
-    startup_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    startup_entry = f"[HONEYPOT] SYSTEM (IPv4) | {startup_time} | /wp-admin/setup-config.php | STARTUP-ENTRY"
-    
-    # Ensure logs directory exists
-    log_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'logs')
-    os.makedirs(log_dir, exist_ok=True)
-    
-    # Write to local log file
-    local_log_file = os.path.join(log_dir, 'search.log')
-    with open(local_log_file, 'a', encoding='utf-8') as f:
-        f.write(f"{startup_entry}\n")
-    
-    # Write to Railway log file if applicable
-    if os.environ.get('RAILWAY_ENVIRONMENT'):
-        railway_log_file = os.path.join('/tmp', 'search.log')
-        with open(railway_log_file, 'a', encoding='utf-8') as f:
-            f.write(f"{startup_entry}\n")
-except Exception as e:
-    print(f"Error writing startup honeypot entry: {e}")
-
 # Create a .htaccess file to prevent direct web access to logs directory
 htaccess_path = os.path.join(log_dir, '.htaccess')
 if not os.path.exists(htaccess_path):

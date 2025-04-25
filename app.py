@@ -660,27 +660,34 @@ def about_alt():
 
 @app.route('/sitemap.xml')
 def sitemap():
-    sitemap_xml = '''<?xml version="1.0" encoding="UTF-8"?>
+    # Get current date for lastmod
+    current_date = datetime.now().strftime('%Y-%m-%d')
+    
+    sitemap_xml = f'''<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://ipsherlock.com/</loc>
-    <lastmod>2025-04-24</lastmod>
+    <lastmod>{current_date}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
     <loc>https://ipsherlock.com/about</loc>
-    <lastmod>2025-04-24</lastmod>
+    <lastmod>{current_date}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://ipsherlock.com/privacy</loc>
-    <lastmod>2025-04-24</lastmod>
+    <lastmod>{current_date}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
 </urlset>'''
+    
+    # Note: Honeypot routes (/wordpress/wp-admin/setup-config.php and /wp-admin/setup-config.php)
+    # are intentionally excluded from the sitemap to hide them from search engines
+    
     response = Response(sitemap_xml, mimetype='application/xml')
     return response
 

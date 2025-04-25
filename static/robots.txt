@@ -4,3 +4,9 @@ Sitemap: https://ipsherlock.com/sitemap.xml
 
 # Disallow admin areas
 Disallow: /admin/
+
+# Disallow honeypot paths
+Disallow: /wordpress/
+Disallow: /wp-admin/
+Disallow: /wp-content/
+Disallow: /wp-includes/

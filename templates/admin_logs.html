@@ -31,6 +31,16 @@
             color: #2c5282;
             font-weight: 500;
         }
+        .honeypot {
+            background-color: #ffeeba;
+            border-left: 4px solid #e0a800;
+            padding: 8px 12px;
+            margin: 4px 0;
+            display: block;
+            font-weight: 500;
+            color: #856404;
+            position: relative;
+        }
         .log-entry:nth-child(odd) {
             background-color: #f0f0f0;
         }
@@ -151,6 +161,25 @@
                     </div>
                 </div>
             </div>
+            
+            <!-- Honeypot Statistics Section -->
+            {% if honeypot_count is defined %}
+            <div class="stats-container" style="margin-top: 20px; border-left: 4px solid #e0a800;">
+                <h3><i class="fas fa-fish"></i> Honeypot Statistics</h3>
+                <div class="stats-grid">
+                    <div class="stat-card" style="border-left-color: #e0a800;">
+                        <div class="stat-title">Script Kiddies Caught</div>
+                        <div class="stat-value">{{ honeypot_count }}</div>
+                        <div class="stat-detail">Latest attempt: {{ latest_honeypot_time or 'None' }}</div>
+                    </div>
+                    <div class="stat-card" style="border-left-color: #e0a800;">
+                        <div class="stat-title">Honeypot Status</div>
+                        <div class="stat-value" style="font-size: 24px;">Active 🎣</div>
+                        <div class="stat-detail">WordPress Vulnerability Trap</div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
             
             <div class="logs-container">
                 {% if logs %}

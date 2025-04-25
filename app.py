@@ -983,11 +983,27 @@ def admin_logs():
     # Reverse to show newest first
     log_entries.reverse()
     
-    # Format logs to highlight IPv6 addresses
+    # Format logs to highlight IPv6 addresses and honeypot entries
     formatted_logs = []
     for log in log_entries:
-        # Check if the log contains an IPv6 address (has parentheses with IPv6 inside)
-        if '(IPv6)' in log:
+        # Check if this is a honeypot entry
+        if '[HONEYPOT]' in log:
+            # Remove the [HONEYPOT] tag for display
+            clean_log = log.replace('[HONEYPOT] ', '')
+            
+            # Check if it also contains an IPv6 address
+            if '(IPv6)' in clean_log:
+                ipv6_part = clean_log.split(' (IPv6)')[0]
+                rest_of_log = clean_log.split(' (IPv6)')[1]
+                # Format with both honeypot and IPv6 highlighting
+                formatted_log = f'<span class="honeypot"><span class="ipv6">{ipv6_part} (IPv6)</span>{rest_of_log} 🎣</span>'
+            else:
+                # Just honeypot formatting
+                formatted_log = f'<span class="honeypot">{clean_log} 🎣</span>'
+            
+            formatted_logs.append(formatted_log)
+        # Regular IPv6 entry (not honeypot)
+        elif '(IPv6)' in log:
             # Find the IPv6 address (assuming it's at the beginning of the log)
             ipv6_part = log.split(' (IPv6)')[0]
             rest_of_log = log.split(' (IPv6)')[1]
@@ -995,6 +1011,7 @@ def admin_logs():
             formatted_log = f'<span class="ipv6">{ipv6_part} (IPv6)</span>{rest_of_log}'
             formatted_logs.append(formatted_log)
         else:
+            # Regular log entry
             formatted_logs.append(log)
     
     # Check if access log file exists
@@ -1007,12 +1024,29 @@ def admin_logs():
         access_log_file = os.path.join(log_dir, 'access.log')
         access_log_exists = os.path.exists(access_log_file)
     
+    # Count honeypot hits
+    honeypot_count = sum(1 for log in log_entries if '[HONEYPOT]' in log)
+    
+    # Get the most recent honeypot hit time
+    latest_honeypot_time = None
+    for log in log_entries:
+        if '[HONEYPOT]' in log:
+            # Extract timestamp from log entry (format: IP | TIMESTAMP | PATH | BROWSER)
+            try:
+                timestamp_part = log.split(' | ')[1]
+                latest_honeypot_time = timestamp_part
+                break  # We've found the most recent one (since logs are reversed)
+            except:
+                pass
+    
     # Pass visitor statistics to the template
     return render_template('admin_logs.html', 
                            logs=formatted_logs, 
                            access_log_exists=access_log_exists,
                            visitor_stats=unique_visitors,
-                           total_unique_visitors=len(unique_ips))
+                           total_unique_visitors=len(unique_ips),
+                           honeypot_count=honeypot_count,
+                           latest_honeypot_time=latest_honeypot_time)
 
 # Script logs route has been removed
 

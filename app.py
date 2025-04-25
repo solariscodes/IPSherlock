@@ -100,6 +100,28 @@ def save_visitor_data():
 # Load visitor data at startup
 load_visitor_data()
 
+# Add a startup honeypot entry to ensure there's always at least one entry in the logs
+try:
+    startup_time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    startup_entry = f"[HONEYPOT] SYSTEM (IPv4) | {startup_time} | /wp-admin/setup-config.php | STARTUP-ENTRY"
+    
+    # Ensure logs directory exists
+    log_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'logs')
+    os.makedirs(log_dir, exist_ok=True)
+    
+    # Write to local log file
+    local_log_file = os.path.join(log_dir, 'search.log')
+    with open(local_log_file, 'a', encoding='utf-8') as f:
+        f.write(f"{startup_entry}\n")
+    
+    # Write to Railway log file if applicable
+    if os.environ.get('RAILWAY_ENVIRONMENT'):
+        railway_log_file = os.path.join('/tmp', 'search.log')
+        with open(railway_log_file, 'a', encoding='utf-8') as f:
+            f.write(f"{startup_entry}\n")
+except Exception as e:
+    print(f"Error writing startup honeypot entry: {e}")
+
 # Create a .htaccess file to prevent direct web access to logs directory
 htaccess_path = os.path.join(log_dir, '.htaccess')
 if not os.path.exists(htaccess_path):
@@ -959,26 +981,43 @@ def admin_logs():
     
     # Get logs from file
     log_entries = []
+    log_read_success = False
     
     # Try Railway logs first
     if os.environ.get('RAILWAY_ENVIRONMENT'):
         try:
+            # Try the standard Railway log file
             log_file = os.path.join('/tmp', LOG_FILENAME)
             if os.path.exists(log_file):
                 with open(log_file, 'r', encoding='utf-8') as f:
                     log_entries = [line.strip() for line in f.readlines()]
+                    log_read_success = True
+            
+            # Also try the search.log in /tmp directory
+            search_log_file = os.path.join('/tmp', 'search.log')
+            if os.path.exists(search_log_file):
+                with open(search_log_file, 'r', encoding='utf-8') as f:
+                    search_log_entries = [line.strip() for line in f.readlines()]
+                    log_entries.extend(search_log_entries)
+                    log_read_success = True
         except Exception as e:
-            log_entries = [f"Error reading Railway logs: {e}"]
+            if not log_read_success:
+                log_entries = [f"Error reading Railway logs: {e}"]
+    
     # Try local logs
-    else:
+    if not log_read_success:
         try:
             log_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'logs')
+            os.makedirs(log_dir, exist_ok=True)  # Ensure logs directory exists
+            
             log_file = os.path.join(log_dir, 'search.log')
             if os.path.exists(log_file):
                 with open(log_file, 'r', encoding='utf-8') as f:
                     log_entries = [line.strip() for line in f.readlines()]
+                    log_read_success = True
         except Exception as e:
-            log_entries = [f"Error reading local logs: {e}"]
+            if not log_read_success:
+                log_entries = [f"Error reading local logs: {e}"]
     
     # Reverse to show newest first
     log_entries.reverse()
@@ -1115,9 +1154,35 @@ def wordpress_honeypot():
     
     # Create log entry for admin panel
     log_entry = f"{client_ip} ({ip_version}) | {timestamp} | {path} | {user_agent}"
+    honeypot_entry = f"[HONEYPOT] {log_entry}"
+    
+    # Ensure logs directory exists
+    log_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'logs')
+    os.makedirs(log_dir, exist_ok=True)
     
     # Log to search logger with a special tag
-    search_logger.info(f"[HONEYPOT] {log_entry}")
+    try:
+        search_logger.info(honeypot_entry)
+    except Exception as e:
+        print(f"Error logging to search_logger: {e}")
+        
+    # Fallback: Direct write to log file if we're on Railway
+    if os.environ.get('RAILWAY_ENVIRONMENT'):
+        try:
+            # Try to write directly to the Railway tmp directory
+            railway_log_file = os.path.join('/tmp', 'search.log')
+            with open(railway_log_file, 'a', encoding='utf-8') as f:
+                f.write(f"{honeypot_entry}\n")
+        except Exception as e:
+            print(f"Error writing to Railway log file: {e}")
+    
+    # Also write to local log file as a backup
+    try:
+        local_log_file = os.path.join(log_dir, 'search.log')
+        with open(local_log_file, 'a', encoding='utf-8') as f:
+            f.write(f"{honeypot_entry}\n")
+    except Exception as e:
+        print(f"Error writing to local log file: {e}")
     
     # Return a funny message that looks like an error but is actually a taunt
     html_response = f"""

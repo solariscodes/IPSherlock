@@ -10,6 +10,7 @@ import io
 import os
 import logging
 import sys
+import json
 from datetime import datetime
 from logging.handlers import RotatingFileHandler
 
@@ -30,11 +31,74 @@ app.config['SESSION_TYPE'] = 'filesystem'
 # Define constants for log storage
 LOG_FILENAME = 'railway_logs.txt'
 ACCESS_LOG_FILENAME = 'access.log'
+VISITORS_FILENAME = 'visitors.json'
 MAX_LOGS = 1000  # Maximum number of logs to store
+
+# Dictionary to store unique visitors
+# Format: {"ipv4": {"count": 123, "first_visit": "timestamp"}, "ipv6": {"count": 45, "first_visit": "timestamp"}}
+unique_visitors = {"ipv4": {"count": 0, "first_visit": None}, "ipv6": {"count": 0, "first_visit": None}}
+
+# Set to track unique IP addresses
+unique_ips = set()
 
 # Setup logging - place logs in a secure location outside web root
 log_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'logs')
 os.makedirs(log_dir, exist_ok=True)
+
+# Function to load visitor data from file
+def load_visitor_data():
+    global unique_visitors, unique_ips
+    visitors_file = os.path.join(log_dir, VISITORS_FILENAME)
+    
+    # For Railway: Try to load from /tmp directory
+    if os.environ.get('RAILWAY_ENVIRONMENT'):
+        railway_visitors_file = os.path.join('/tmp', VISITORS_FILENAME)
+        if os.path.exists(railway_visitors_file):
+            try:
+                with open(railway_visitors_file, 'r') as f:
+                    data = json.load(f)
+                    unique_visitors = data.get('stats', unique_visitors)
+                    unique_ips = set(data.get('ips', []))
+                    return
+            except Exception as e:
+                print(f"Error loading Railway visitor data: {e}")
+    
+    # Try to load from local file
+    if os.path.exists(visitors_file):
+        try:
+            with open(visitors_file, 'r') as f:
+                data = json.load(f)
+                unique_visitors = data.get('stats', unique_visitors)
+                unique_ips = set(data.get('ips', []))
+        except Exception as e:
+            print(f"Error loading visitor data: {e}")
+
+# Function to save visitor data to file
+def save_visitor_data():
+    visitors_file = os.path.join(log_dir, VISITORS_FILENAME)
+    data = {
+        'stats': unique_visitors,
+        'ips': list(unique_ips)
+    }
+    
+    # For Railway: Save to /tmp directory
+    if os.environ.get('RAILWAY_ENVIRONMENT'):
+        try:
+            railway_visitors_file = os.path.join('/tmp', VISITORS_FILENAME)
+            with open(railway_visitors_file, 'w') as f:
+                json.dump(data, f)
+        except Exception as e:
+            print(f"Error saving Railway visitor data: {e}")
+    
+    # Also save to local file
+    try:
+        with open(visitors_file, 'w') as f:
+            json.dump(data, f)
+    except Exception as e:
+        print(f"Error saving visitor data: {e}")
+
+# Load visitor data at startup
+load_visitor_data()
 
 # Create a .htaccess file to prevent direct web access to logs directory
 htaccess_path = os.path.join(log_dir, '.htaccess')
@@ -98,6 +162,22 @@ def log_request():
         
     # Determine if this is IPv4 or IPv6
     ip_version = "IPv6" if ':' in client_ip else "IPv4"
+    
+    # Track unique visitors
+    global unique_visitors, unique_ips
+    if client_ip not in unique_ips:
+        # This is a new visitor
+        unique_ips.add(client_ip)
+        
+        # Update visitor count for the appropriate IP version
+        unique_visitors[ip_version.lower()]["count"] += 1
+        
+        # If this is the first visitor of this type, record the timestamp
+        if unique_visitors[ip_version.lower()]["first_visit"] is None:
+            unique_visitors[ip_version.lower()]["first_visit"] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        
+        # Save visitor data
+        save_visitor_data()
     
     # Get current timestamp in a clean format
     timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
@@ -920,7 +1000,12 @@ def admin_logs():
         access_log_file = os.path.join(log_dir, 'access.log')
         access_log_exists = os.path.exists(access_log_file)
     
-    return render_template('admin_logs.html', logs=formatted_logs, access_log_exists=access_log_exists)
+    # Pass visitor statistics to the template
+    return render_template('admin_logs.html', 
+                           logs=formatted_logs, 
+                           access_log_exists=access_log_exists,
+                           visitor_stats=unique_visitors,
+                           total_unique_visitors=len(unique_ips))
 
 # Script logs route has been removed
 

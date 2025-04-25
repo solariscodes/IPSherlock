@@ -56,7 +56,7 @@
                 
                 <form action="{{ url_for('lookup') }}" method="post" id="lookup-form">
                     <div class="input-group">
-                        <input type="text" name="query" id="query" placeholder="Enter IP address or hostname" required>
+                        <input type="text" name="query" id="query" placeholder="Enter IP address (IPv4/IPv6) or hostname" required>
                         <button type="submit" id="lookup-button">🔍 Lookup</button>
                         <button type="button" id="my-ip-button" onclick="checkMyIP(); return false;">My IP</button>
                     </div>
@@ -69,7 +69,7 @@
                     </div>
                     {% endif %}
                     <div class="examples">
-                        <p>Examples: 8.8.8.8, google.com</p>
+                        <p>Examples: 8.8.8.8, 2001:4860:4860::8888, google.com</p>
                         <p class="tagline">Every digital footprint leaves a clue. Let's crack the case 🔍</p>
                     </div>
                     <div class="loading-indicator" id="loading-indicator">

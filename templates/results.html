@@ -79,6 +79,10 @@
                                     <span class="value">{{ data.ip }}</span>
                                 </div>
                                 <div class="info-item">
+                                    <span class="label">IP Version:</span>
+                                    <span class="value">{{ data.ip_version }}</span>
+                                </div>
+                                <div class="info-item">
                                     <span class="label">Hostname:</span>
                                     <span class="value">{{ data.hostname }}</span>
                                 </div>
@@ -145,28 +149,28 @@
                                     
                                     // Add the OpenStreetMap tiles
                                     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                                        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-                                        maxZoom: 18
+                                        "attribution": '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+                                        "maxZoom": 18
                                     }).addTo(map);
                                     
                                     // Add a marker with location information
                                     var locationInfo = "";
                                     {% if data.city != "N/A" %}
-                                        locationInfo += "{{ data.city }}";
+                                        locationInfo = locationInfo + "{{ data.city }}";
                                     {% endif %}
                                     
                                     {% if data.region != "N/A" %}
                                         {% if data.city != "N/A" %}
-                                            locationInfo += ", ";
+                                            locationInfo = locationInfo + ", ";
                                         {% endif %}
-                                        locationInfo += "{{ data.region }}";
+                                        locationInfo = locationInfo + "{{ data.region }}";
                                     {% endif %}
                                     
                                     {% if data.country != "N/A" %}
                                         {% if data.city != "N/A" or data.region != "N/A" %}
-                                            locationInfo += ", ";
+                                            locationInfo = locationInfo + ", ";
                                         {% endif %}
-                                        locationInfo += "{{ data.country }}";
+                                        locationInfo = locationInfo + "{{ data.country }}";
                                     {% endif %}
                                     
                                     if (locationInfo === "") {
@@ -261,8 +265,8 @@
                                     
                                     // Add the OpenStreetMap tiles
                                     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                                        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-                                        maxZoom: 18
+                                        "attribution": '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+                                        "maxZoom": 18
                                     }).addTo(map);
                                     
                                     // Add a marker with location information

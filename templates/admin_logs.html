@@ -24,6 +24,12 @@
         .log-entry {
             padding: 8px;
             border-bottom: 1px solid #ddd;
+            word-wrap: break-word;
+            line-height: 1.4;
+        }
+        .ipv6 {
+            color: #2c5282;
+            font-weight: 500;
         }
         .log-entry:nth-child(odd) {
             background-color: #f0f0f0;
@@ -86,7 +92,7 @@
             <div class="logs-container">
                 {% if logs %}
                     {% for log in logs %}
-                        <div class="log-entry">{{ log }}</div>
+                        <div class="log-entry">{{ log | safe }}</div>
                     {% endfor %}
                 {% else %}
                     <p>No search logs found.</p>

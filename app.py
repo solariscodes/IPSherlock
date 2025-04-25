@@ -95,6 +95,9 @@ def log_request():
         client_ip = request.headers.get('X-Forwarded-For', '').split(',')[0].strip()
     else:
         client_ip = request.remote_addr
+        
+    # Determine if this is IPv4 or IPv6
+    ip_version = "IPv6" if ':' in client_ip else "IPv4"
     
     # Get current timestamp in a clean format
     timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
@@ -116,6 +119,7 @@ def log_request():
     # Store the log info in the request object for use in after_request
     request.log_info = {
         'client_ip': client_ip,
+        'ip_version': "IPv6" if ':' in client_ip else "IPv4",
         'timestamp': timestamp,
         'method': method,
         'path': full_path,
@@ -194,6 +198,7 @@ def after_request(response):
         # Create the log_info if it doesn't exist
         request.log_info = {
             'client_ip': client_ip,
+            'ip_version': "IPv6" if ':' in client_ip else "IPv4",
             'timestamp': timestamp,
             'method': method,
             'path': full_path,
@@ -266,8 +271,8 @@ def after_request(response):
     # Get browser name
     browser = request.log_info['user_agent'].split(' ')[0]
     
-    # Create a clean log entry with IP, date/time, URI, OS, and browser
-    log_entry = f"{request.log_info['client_ip']} | {timestamp} | {uri} | {os_info} | {browser}"
+    # Create a clean log entry with IP, IP version, date/time, URI, OS, and browser
+    log_entry = f"{request.log_info['client_ip']} ({request.log_info['ip_version']}) | {timestamp} | {uri} | {os_info} | {browser}"
     
     # Log to access logger
     access_logger.info(log_entry)
@@ -284,16 +289,37 @@ def after_request(response):
     return response
 
 def is_valid_ip(ip):
-    """Check if the input is a valid IP address."""
-    ip_pattern = re.compile(r'^(\d{1,3}\.){3}\d{1,3}$')
-    if not ip_pattern.match(ip):
-        return False
-    # Check that each octet is between 0 and 255
-    octets = ip.split('.')
-    for octet in octets:
-        if int(octet) < 0 or int(octet) > 255:
+    """Check if the input is a valid IP address (IPv4 or IPv6)."""
+    # First, try to clean up the input - remove any surrounding brackets which might be present
+    ip = ip.strip('[]')
+    
+    # Check for IPv4
+    if ':' not in ip:
+        # IPv4 pattern
+        ipv4_pattern = re.compile(r'^(\d{1,3}\.){3}\d{1,3}$')
+        if not ipv4_pattern.match(ip):
             return False
-    return True
+        # Check that each octet is between 0 and 255
+        octets = ip.split('.')
+        for octet in octets:
+            if int(octet) < 0 or int(octet) > 255:
+                return False
+        return True
+    else:
+        # IPv6 validation using socket library
+        try:
+            # This will validate the IPv6 address format
+            socket.inet_pton(socket.AF_INET6, ip)
+            return True
+        except (socket.error, ValueError):
+            # Try one more time with any potential URL encoding fixed
+            try:
+                # Replace encoded characters that might appear in IPv6 addresses
+                fixed_ip = ip.replace('%3A', ':')
+                socket.inet_pton(socket.AF_INET6, fixed_ip)
+                return True
+            except (socket.error, ValueError):
+                return False
 
 def is_valid_hostname(hostname):
     """Check if the input is a valid hostname."""
@@ -314,8 +340,11 @@ def is_valid_hostname(hostname):
     return bool(hostname_pattern.match(hostname))
 
 def get_ip_info(ip):
-    """Get detailed information about an IP address."""
+    """Get detailed information about an IP address (IPv4 or IPv6)."""
     try:
+        # Determine if this is IPv4 or IPv6
+        ip_version = "IPv6" if ':' in ip else "IPv4"
+        
         # Basic IP info
         obj = IPWhois(ip)
         results = obj.lookup_rdap(depth=1)
@@ -323,6 +352,7 @@ def get_ip_info(ip):
         # Prepare the data with basic info
         ip_data = {
             "ip": ip,
+            "ip_version": ip_version,
             "asn": results.get("asn", "N/A"),
             "asn_description": results.get("asn_description", "N/A"),
             "network": results.get("network", {}).get("cidr", "N/A"),
@@ -590,14 +620,34 @@ def lookup():
     # Strip common protocols if present
     query = strip_protocols(query)
     
+    # Clean up the query - remove any surrounding brackets which might be present for IPv6
+    query = query.strip('[]')
+    
     # Store the query in the session
     session['last_query'] = query
     
     # Logging is now handled by the before_request handler
     
+    # Special handling for IPv6 addresses
+    # IPv6 addresses contain colons which can cause issues in form submission
+    if ':' in query:
+        # Try to handle potential URL encoding in IPv6 addresses
+        if '%3A' in query:
+            query = query.replace('%3A', ':')
+        
+        # If it looks like an IPv6 address, try to validate it directly
+        try:
+            # This will validate the IPv6 address format
+            socket.inet_pton(socket.AF_INET6, query)
+            # If it's valid, proceed to results
+            return redirect(url_for('results', query=query))
+        except (socket.error, ValueError):
+            # Not a valid IPv6 address, continue with normal validation
+            pass
+    
     # Validate the query before proceeding
     if not is_valid_ip(query) and not is_valid_hostname(query):
-        return render_template('index.html', error="Please enter a valid IP address or domain name.")
+        return render_template('index.html', error="Please enter a valid IP address (like 8.8.8.8, 2001:4860:4860::8888) or domain name (like example.com).")
     
     return redirect(url_for('results', query=query))
 
@@ -615,31 +665,29 @@ def strip_protocols(url):
 
 @app.route('/results')
 def results():
-    """Show the results of the lookup."""
+    # Get the query parameter
     query = request.args.get('query', '').strip()
+    
     if not query:
         return redirect(url_for('index'))
     
-    # Strip common protocols if present
-    query = strip_protocols(query)
-    
-    # Logging is now handled by the before_request handler
-    
-    # Determine if the query is an IP address or hostname
-    try:
-        if is_valid_ip(query):
-            data = get_ip_info(query)
-            query_type = 'ip'
-        elif is_valid_hostname(query):
-            data = get_host_info(query)
-            query_type = 'hostname'
+    # Determine if the query is an IP address (IPv4 or IPv6) or a hostname
+    if is_valid_ip(query):
+        data = get_ip_info(query)
+        query_type = 'ip'
+        # Add IP version to the data for display
+        if ':' in query:
+            data['ip_version_display'] = 'IPv6'
         else:
-            data = {"error": "Invalid input. Please enter a valid IP address or hostname."}
-            query_type = 'invalid'
-    except Exception as e:
-        data = {"error": f"An error occurred during lookup: {str(e)}"}
-        query_type = 'error'
-    
+            data['ip_version_display'] = 'IPv4'
+    elif is_valid_hostname(query):
+        data = get_host_info(query)
+        query_type = 'hostname'
+    else:
+        # If not a valid IP or hostname, try to interpret as a hostname
+        data = get_host_info(query)
+        query_type = 'hostname'
+
     # Geolocation data is no longer used for map display
     
     return render_template('results.html', query=query, data=data, query_type=query_type)
@@ -672,6 +720,7 @@ def export_csv(query_type, query):
             # Write IP information
             writer.writerow(['IP Information', ''])
             writer.writerow(['IP Address', data.get('ip', 'N/A')])
+            writer.writerow(['IP Version', data.get('ip_version_display', 'N/A')])
             writer.writerow(['ASN', data.get('asn', 'N/A')])
             writer.writerow(['ASN Description', data.get('asn_description', 'N/A')])
             writer.writerow(['Network', data.get('network', 'N/A')])
@@ -847,6 +896,20 @@ def admin_logs():
     # Reverse to show newest first
     log_entries.reverse()
     
+    # Format logs to highlight IPv6 addresses
+    formatted_logs = []
+    for log in log_entries:
+        # Check if the log contains an IPv6 address (has parentheses with IPv6 inside)
+        if '(IPv6)' in log:
+            # Find the IPv6 address (assuming it's at the beginning of the log)
+            ipv6_part = log.split(' (IPv6)')[0]
+            rest_of_log = log.split(' (IPv6)')[1]
+            # Format with HTML
+            formatted_log = f'<span class="ipv6">{ipv6_part} (IPv6)</span>{rest_of_log}'
+            formatted_logs.append(formatted_log)
+        else:
+            formatted_logs.append(log)
+    
     # Check if access log file exists
     access_log_exists = False
     
@@ -857,7 +920,7 @@ def admin_logs():
         access_log_file = os.path.join(log_dir, 'access.log')
         access_log_exists = os.path.exists(access_log_file)
     
-    return render_template('admin_logs.html', logs=log_entries, access_log_exists=access_log_exists)
+    return render_template('admin_logs.html', logs=formatted_logs, access_log_exists=access_log_exists)
 
 # Script logs route has been removed
 

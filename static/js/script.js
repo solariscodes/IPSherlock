@@ -32,8 +32,17 @@ document.addEventListener('DOMContentLoaded', function() {
         // Reset the form on page load
         form.reset();
         
-        // Function to validate IP address
+        // Function to validate IP address (IPv4 or IPv6)
         function isValidIP(ip) {
+            // Check if this might be an IPv6 address (contains colons)
+            if (ip.includes(':')) {
+                // Basic IPv6 validation - at least 2 colons and valid hex characters
+                // This is a simplified check - the server will do a more thorough validation
+                const ipv6Pattern = /^[0-9a-fA-F:]+$/;
+                return ipv6Pattern.test(ip) && ip.includes('::') || ip.split(':').length > 2;
+            }
+            
+            // IPv4 validation
             const ipPattern = /^(\d{1,3}\.){3}\d{1,3}$/;
             if (!ipPattern.test(ip)) return false;
             
@@ -97,7 +106,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!isValidIP(cleanQuery) && !isValidDomain(cleanQuery)) {
                 e.preventDefault();
                 queryInput.classList.add('error');
-                showError('Please enter a valid IP address (like 8.8.8.8) or domain name (like example.com).');
+                showError('Please enter a valid IP address (like 8.8.8.8 or 2001:4860:4860::8888) or domain name (like example.com).');
                 return false;
             }
             

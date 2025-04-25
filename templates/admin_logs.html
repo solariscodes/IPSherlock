@@ -33,7 +33,11 @@
             justify-content: space-between;
             align-items: center;
         }
-        .refresh-btn {
+        .admin-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        .admin-btn {
             background-color: #4a4a4a;
             color: white;
             padding: 8px 16px;
@@ -41,8 +45,20 @@
             text-decoration: none;
             font-size: 14px;
         }
-        .refresh-btn:hover {
+        .admin-btn:hover {
             background-color: #333;
+        }
+        .download-btn {
+            background-color: #2c5282;
+        }
+        .download-btn:hover {
+            background-color: #1a365d;
+        }
+        .download-btn {
+            background-color: #2d6a4f;
+        }
+        .download-btn:hover {
+            background-color: #1b4332;
         }
     </style>
 </head>
@@ -59,7 +75,12 @@
         <main>
             <div class="admin-heading">
                 <h2>Detective's Search Logs</h2>
-                <a href="{{ request.url }}" class="refresh-btn"><i class="fas fa-sync-alt"></i> Refresh</a>
+                <div class="admin-buttons">
+                    {% if access_log_exists %}
+                    <a href="{{ url_for('download_access_logs', key=request.args.get('key')) }}" class="admin-btn download-btn"><i class="fas fa-download"></i> Download HTTP Logs</a>
+                    {% endif %}
+                    <a href="{{ request.url }}" class="admin-btn"><i class="fas fa-sync-alt"></i> Refresh</a>
+                </div>
             </div>
             
             <div class="logs-container">

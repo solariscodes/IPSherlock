@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IPSherlock - Design Options</title>
+    <style>
+        :root {
+            --primary-color: #4a6fa5;
+            --secondary-color: #1a2a3a;
+            --accent-color: #4fc3f7;
+            --detective-color: #1a2a3a;
+            --magnifying-color: #c0a080;
+            --background-color: #f8f9fa;
+            --text-color: #333;
+            --light-text: #666;
+            --border-color: #ddd;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+        
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            padding: 20px;
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: var(--detective-color);
+        }
+        
+        .options-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+        }
+        
+        .option {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            width: 100%;
+            max-width: 400px;
+        }
+        
+        .option h2 {
+            color: var(--detective-color);
+            margin-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+        }
+        
+        .option-content {
+            background-color: #f5f5f5;
+            border-radius: 4px;
+            padding: 20px;
+            margin-bottom: 20px;
+            min-height: 200px;
+        }
+        
+        .pros-cons {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .pros, .cons {
+            flex: 1;
+        }
+        
+        .pros h3, .cons h3 {
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+        
+        .pros h3 {
+            color: #28a745;
+        }
+        
+        .cons h3 {
+            color: #dc3545;
+        }
+        
+        ul {
+            padding-left: 20px;
+        }
+        
+        li {
+            margin-bottom: 5px;
+        }
+        
+        /* OPTION 1: Toggle Switch Styles */
+        .search-mode-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 15px;
+        }
+        
+        .toggle-label {
+            font-size: 0.9rem;
+            color: var(--light-text);
+            margin: 0 10px;
+            cursor: pointer;
+        }
+        
+        .toggle-label.active {
+            color: var(--detective-color);
+            font-weight: 500;
+        }
+        
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 40px;
+            height: 20px;
+        }
+        
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--border-color);
+            transition: .4s;
+        }
+        
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 2px;
+            bottom: 2px;
+            background-color: white;
+            transition: .4s;
+        }
+        
+        input:checked + .slider {
+            background-color: var(--accent-color);
+        }
+        
+        input:checked + .slider:before {
+            transform: translateX(20px);
+        }
+        
+        .slider.round {
+            border-radius: 20px;
+        }
+        
+        .slider.round:before {
+            border-radius: 50%;
+        }
+        
+        /* OPTION 2: Link below search box */
+        .search-box {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            width: 100%;
+        }
+        
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        
+        input[type="text"] {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+        }
+        
+        button {
+            background-color: var(--detective-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 10px 15px;
+            cursor: pointer;
+        }
+        
+        .self-investigate {
+            text-align: right;
+            margin-top: 8px;
+            font-size: 0.85rem;
+        }
+        
+        #investigate-my-ip {
+            color: var(--primary-color);
+            text-decoration: none;
+            display: inline-block;
+            position: relative;
+        }
+        
+        #investigate-my-ip:after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            transform: scaleX(0);
+            height: 1px;
+            bottom: 0;
+            left: 0;
+            background-color: var(--detective-color);
+            transform-origin: bottom right;
+            transition: transform 0.3s ease-out;
+        }
+        
+        #investigate-my-ip:hover {
+            color: var(--detective-color);
+        }
+        
+        #investigate-my-ip:hover:after {
+            transform: scaleX(1);
+            transform-origin: bottom left;
+        }
+        
+        /* OPTION 3: As part of examples */
+        .examples {
+            margin-top: 15px;
+            color: var(--light-text);
+            font-size: 0.9rem;
+        }
+        
+        .example-link {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-style: italic;
+            position: relative;
+        }
+        
+        .example-link:hover {
+            color: var(--detective-color);
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <h1>IPSherlock - "Check My IP" Design Options</h1>
+    
+    <div class="options-container">
+        <div class="option">
+            <h2>Option 1: Toggle Switch</h2>
+            <div class="option-content">
+                <div class="search-box">
+                    <div class="search-mode-toggle">
+                        <span class="toggle-label active" id="search-mode-label">Search IP/Domain</span>
+                        <label class="switch">
+                            <input type="checkbox" id="search-mode-toggle">
+                            <span class="slider round"></span>
+                        </label>
+                        <span class="toggle-label" id="my-ip-mode-label">Investigate My IP</span>
+                    </div>
+                    
+                    <div class="input-group">
+                        <input type="text" placeholder="Enter IP address or hostname">
+                        <button>🔍 Lookup</button>
+                    </div>
+                </div>
+            </div>
+            <div class="pros-cons">
+                <div class="pros">
+                    <h3>Pros</h3>
+                    <ul>
+                        <li>Clear separation of functionality</li>
+                        <li>Intuitive mode switching</li>
+                        <li>Modern UI element</li>
+                        <li>Prominent but not distracting</li>
+                    </ul>
+                </div>
+                <div class="cons">
+                    <h3>Cons</h3>
+                    <ul>
+                        <li>Takes up vertical space</li>
+                        <li>Might be unfamiliar to some users</li>
+                        <li>More complex to implement</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="option">
+            <h2>Option 2: Subtle Link</h2>
+            <div class="option-content">
+                <div class="search-box">
+                    <div class="input-group">
+                        <input type="text" placeholder="Enter IP address or hostname">
+                        <button>🔍 Lookup</button>
+                    </div>
+                    
+                    <div class="self-investigate">
+                        <a href="#" id="investigate-my-ip">Investigate my own digital footprint</a>
+                    </div>
+                </div>
+            </div>
+            <div class="pros-cons">
+                <div class="pros">
+                    <h3>Pros</h3>
+                    <ul>
+                        <li>Doesn't compete with main search</li>
+                        <li>Elegant and subtle design</li>
+                        <li>Detective-themed language</li>
+                        <li>Positioned for easy discovery</li>
+                    </ul>
+                </div>
+                <div class="cons">
+                    <h3>Cons</h3>
+                    <ul>
+                        <li>Could be overlooked by some users</li>
+                        <li>Text might be too long</li>
+                        <li>Right-alignment might feel disconnected</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="option">
+            <h2>Option 3: Example Link</h2>
+            <div class="option-content">
+                <div class="search-box">
+                    <div class="input-group">
+                        <input type="text" placeholder="Enter IP address or hostname">
+                        <button>🔍 Lookup</button>
+                    </div>
+                    
+                    <div class="examples">
+                        <p>Examples: 8.8.8.8, google.com, or <a href="#" class="example-link">trace my own IP</a></p>
+                    </div>
+                </div>
+            </div>
+            <div class="pros-cons">
+                <div class="pros">
+                    <h3>Pros</h3>
+                    <ul>
+                        <li>Contextually relevant placement</li>
+                        <li>Feels like a natural suggestion</li>
+                        <li>Minimal design impact</li>
+                        <li>Concise wording</li>
+                    </ul>
+                </div>
+                <div class="cons">
+                    <h3>Cons</h3>
+                    <ul>
+                        <li>Could be missed among examples</li>
+                        <li>Less prominent than other options</li>
+                        <li>Might be confused with example inputs</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Toggle switch functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const toggleSwitch = document.getElementById('search-mode-toggle');
+            const searchLabel = document.getElementById('search-mode-label');
+            const myIpLabel = document.getElementById('my-ip-mode-label');
+            
+            if (toggleSwitch) {
+                toggleSwitch.addEventListener('change', function() {
+                    if (this.checked) {
+                        // My IP mode
+                        searchLabel.classList.remove('active');
+                        myIpLabel.classList.add('active');
+                    } else {
+                        // Search mode
+                        myIpLabel.classList.remove('active');
+                        searchLabel.classList.add('active');
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

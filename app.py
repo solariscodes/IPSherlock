@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, Response, session, send_from_directory
+from flask import Flask, render_template, request, redirect, url_for, Response, session, send_from_directory, send_file
 import socket
 import whois
 import dns.resolver
@@ -9,6 +9,7 @@ import csv
 import io
 import os
 import logging
+import sys
 from datetime import datetime
 from logging.handlers import RotatingFileHandler
 
@@ -28,11 +29,23 @@ app.config['SESSION_TYPE'] = 'filesystem'
 
 # Define constants for log storage
 LOG_FILENAME = 'railway_logs.txt'
+ACCESS_LOG_FILENAME = 'access.log'
 MAX_LOGS = 1000  # Maximum number of logs to store
 
-# Setup logging
+# Setup logging - place logs in a secure location outside web root
 log_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'logs')
 os.makedirs(log_dir, exist_ok=True)
+
+# Create a .htaccess file to prevent direct web access to logs directory
+htaccess_path = os.path.join(log_dir, '.htaccess')
+if not os.path.exists(htaccess_path):
+    try:
+        with open(htaccess_path, 'w') as f:
+            f.write("# Prevent direct access to log files\n")
+            f.write("Order deny,allow\n")
+            f.write("Deny from all\n")
+    except Exception as e:
+        print(f"Could not create .htaccess file: {e}")
 
 # Create a custom logger for searches
 search_logger = logging.getLogger('search_logger')
@@ -53,21 +66,70 @@ handler.setFormatter(formatter)
 # Add handlers to the logger
 search_logger.addHandler(handler)
 
-# Log all requests to the results page
+# Script logging has been removed
+
+# Create a logger for HTTP access logs (Apache-style)
+access_logger = logging.getLogger('access_logger')
+access_logger.setLevel(logging.INFO)
+access_logger.propagate = False
+
+# Create a handler for access logs
+access_log_file = os.path.join(log_dir, 'access.log')
+access_handler = RotatingFileHandler(access_log_file, maxBytes=10485760, backupCount=10)  # 10MB per file, keep 10 files
+access_handler.setLevel(logging.INFO)
+
+# Create a simple formatter for access logs (Apache-like format)
+access_formatter = logging.Formatter('%(message)s')
+access_handler.setFormatter(access_formatter)
+
+# Add handler to the access logger
+access_logger.addHandler(access_handler)
+
+# Script logging has been removed
+
+# Log all HTTP requests in Apache-like format
 @app.before_request
 def log_request():
+    # Get client IP, handling proxy headers
+    if request.headers.get('X-Forwarded-For'):
+        client_ip = request.headers.get('X-Forwarded-For', '').split(',')[0].strip()
+    else:
+        client_ip = request.remote_addr
+    
+    # Get current timestamp in a clean format
+    timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    
+    # Get the request method and full path with query string
+    method = request.method
+    full_path = request.full_path if request.query_string else request.path
+    
+    # Get user agent
+    user_agent = request.headers.get('User-Agent', '-')
+    
+    # Get referrer
+    referrer = request.headers.get('Referer', '-')
+    
+    # Create simplified log entry
+    # Format: <ip> | <datetime> | <uri> | <browser>
+    # This is a cleaner format focusing only on the essential information
+    
+    # Store the log info in the request object for use in after_request
+    request.log_info = {
+        'client_ip': client_ip,
+        'timestamp': timestamp,
+        'method': method,
+        'path': full_path,
+        'referrer': referrer,
+        'user_agent': user_agent
+    }
+    
+    # Continue logging specific search queries for backward compatibility
     if request.path == '/results' and 'query' in request.args:
         query = request.args.get('query', '').strip()
         if query:
-            # Get client IP, handling proxy headers
-            if request.headers.get('X-Forwarded-For'):
-                client_ip = request.headers.get('X-Forwarded-For', '').split(',')[0].strip()
-            else:
-                client_ip = request.remote_addr
-            
-            # Create log entry in same format
-            timestamp = datetime.now().strftime('[%d/%b/%Y %H:%M:%S]')
-            log_entry = f"{client_ip} - - {timestamp} \"GET /results?query={query} HTTP/1.1\" 200 -"
+            # Create log entry in same format as before
+            old_timestamp = datetime.now().strftime('[%d/%b/%Y %H:%M:%S]')
+            log_entry = f"{client_ip} - - {old_timestamp} \"GET /results?query={query} HTTP/1.1\" 200 -"
             
             # For Railway: Store in tmp directory which is ephemeral but works during the session
             if os.environ.get('RAILWAY_ENVIRONMENT'):
@@ -104,6 +166,122 @@ def log_request():
                         os.fsync(f.fileno())  # Force write to disk
                 except Exception as e:
                     print(f"Logging error: {e}")
+
+# Complete the Apache-style logging after the request is processed
+@app.after_request
+def after_request(response):
+    # Always ensure we have log_info for every request
+    if not hasattr(request, 'log_info'):
+        # Get client IP, handling proxy headers
+        if request.headers.get('X-Forwarded-For'):
+            client_ip = request.headers.get('X-Forwarded-For', '').split(',')[0].strip()
+        else:
+            client_ip = request.remote_addr
+        
+        # Get current timestamp in Apache log format
+        timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        
+        # Get the request method and full path with query string
+        method = request.method
+        full_path = request.full_path if request.query_string else request.path
+        
+        # Get user agent
+        user_agent = request.headers.get('User-Agent', '-')
+        
+        # Get referrer
+        referrer = request.headers.get('Referer', '-')
+        
+        # Create the log_info if it doesn't exist
+        request.log_info = {
+            'client_ip': client_ip,
+            'timestamp': timestamp,
+            'method': method,
+            'path': full_path,
+            'referrer': referrer,
+            'user_agent': user_agent
+        }
+    
+    # Get response status code
+    status_code = response.status_code
+    
+    # Get response size (content length)
+    response_size = response.content_length if response.content_length is not None else '-'
+    
+    # Format a simplified log entry with only the essential information
+    # Get the URI without the domain
+    uri = request.log_info['path'].replace('http://localhost:5000/', '/')
+    if uri.startswith('http'):
+        # Extract just the path from any full URL
+        uri = '/' + uri.split('/', 3)[3] if len(uri.split('/', 3)) > 3 else '/'
+    
+    # Format date and time in a cleaner way
+    timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    
+    # Extract operating system information from user agent
+    user_agent = request.log_info['user_agent']
+    os_info = "Unknown"
+    
+    # Simple OS detection from user agent
+    if "Windows" in user_agent:
+        os_version = re.search(r'Windows NT (\d+\.\d+)', user_agent)
+        if os_version:
+            nt_version = os_version.group(1)
+            os_mapping = {
+                '10.0': 'Windows 10/11',
+                '6.3': 'Windows 8.1',
+                '6.2': 'Windows 8',
+                '6.1': 'Windows 7',
+                '6.0': 'Windows Vista',
+                '5.2': 'Windows XP x64',
+                '5.1': 'Windows XP',
+            }
+            os_info = os_mapping.get(nt_version, f"Windows NT {nt_version}")
+        else:
+            os_info = "Windows"
+    elif "Macintosh" in user_agent:
+        if "Intel Mac OS X" in user_agent:
+            mac_version = re.search(r'Intel Mac OS X (\d+[._]\d+)', user_agent)
+            if mac_version:
+                os_info = f"macOS {mac_version.group(1).replace('_', '.')}" 
+            else:
+                os_info = "macOS"
+        else:
+            os_info = "macOS"
+    elif "Linux" in user_agent:
+        if "Android" in user_agent:
+            android_version = re.search(r'Android (\d+\.\d+)', user_agent)
+            if android_version:
+                os_info = f"Android {android_version.group(1)}"
+            else:
+                os_info = "Android"
+        else:
+            os_info = "Linux"
+    elif "iPhone" in user_agent or "iPad" in user_agent or "iPod" in user_agent:
+        ios_version = re.search(r'OS (\d+[._]\d+)', user_agent)
+        if ios_version:
+            os_info = f"iOS {ios_version.group(1).replace('_', '.')}"
+        else:
+            os_info = "iOS"
+    
+    # Get browser name
+    browser = request.log_info['user_agent'].split(' ')[0]
+    
+    # Create a clean log entry with IP, date/time, URI, OS, and browser
+    log_entry = f"{request.log_info['client_ip']} | {timestamp} | {uri} | {os_info} | {browser}"
+    
+    # Log to access logger
+    access_logger.info(log_entry)
+    
+    # For Railway: Store in tmp directory
+    if os.environ.get('RAILWAY_ENVIRONMENT'):
+        try:
+            access_log_file = os.path.join('/tmp', ACCESS_LOG_FILENAME)
+            with open(access_log_file, 'a', encoding='utf-8') as f:
+                f.write(log_entry + '\n')
+        except Exception as e:
+            print(f"Railway access logging error: {e}")
+    
+    return response
 
 def is_valid_ip(ip):
     """Check if the input is a valid IP address."""
@@ -634,14 +812,7 @@ def design_options():
 def health_check():
     return {"status": "ok", "message": "IPSherlock is running"}
 
-# This debug route should be removed after setting up the environment variable
-@app.route('/debug-admin')
-def debug_admin():
-    # Only show the admin URL if using the default password
-    if ADMIN_PASSWORD == 'default_admin_key_please_change':
-        return f"<p>Admin URL: https://ipsherlock.com/admin/logs?key={ADMIN_PASSWORD}</p><p>Warning: Using default password. Set SHERLOCK_CASE_FILE in Railway!</p>"
-    else:
-        return "<p>Environment variable is set. Admin URL is now secure.</p>"
+# Debug route has been removed for security
 
 # Add admin route to view logs
 @app.route('/admin/logs')
@@ -676,7 +847,64 @@ def admin_logs():
     # Reverse to show newest first
     log_entries.reverse()
     
-    return render_template('admin_logs.html', logs=log_entries)
+    # Check if access log file exists
+    access_log_exists = False
+    
+    if os.environ.get('RAILWAY_ENVIRONMENT'):
+        access_log_file = os.path.join('/tmp', ACCESS_LOG_FILENAME)
+        access_log_exists = os.path.exists(access_log_file)
+    else:
+        access_log_file = os.path.join(log_dir, 'access.log')
+        access_log_exists = os.path.exists(access_log_file)
+    
+    return render_template('admin_logs.html', logs=log_entries, access_log_exists=access_log_exists)
+
+# Script logs route has been removed
+
+# Add route to download access logs - with additional security measures
+@app.route('/admin/download-access-logs')
+def download_access_logs():
+    # Check if the provided key matches the admin password
+    if request.args.get('key') != ADMIN_PASSWORD:
+        return "Not Found", 404
+    
+    # Additional security: Check referer to prevent direct access
+    referer = request.headers.get('Referer', '')
+    if not referer or '/admin/logs' not in referer:
+        # Log potential unauthorized access attempt
+        print(f"Warning: Unauthorized access attempt to logs from {request.remote_addr}")
+        return "Not Found", 404
+    
+    # Generate a timestamped filename for the log
+    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+    download_filename = f"ipsherlock_access_log_{timestamp}.log"
+    
+    # Determine the log file path based on environment
+    if os.environ.get('RAILWAY_ENVIRONMENT'):
+        access_log_file = os.path.join('/tmp', ACCESS_LOG_FILENAME)
+        
+        # If the file doesn't exist yet, create an empty one
+        if not os.path.exists(access_log_file):
+            with open(access_log_file, 'w', encoding='utf-8') as f:
+                f.write(f"# Access log file created on {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+    else:
+        log_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'logs')
+        access_log_file = os.path.join(log_dir, 'access.log')
+        
+        # If the file doesn't exist yet, create an empty one
+        if not os.path.exists(access_log_file):
+            os.makedirs(log_dir, exist_ok=True)
+            with open(access_log_file, 'w', encoding='utf-8') as f:
+                f.write(f"# Access log file created on {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+    
+    # Log this download event to console
+    print(f"Access log file downloaded at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    
+    # Send the file as an attachment
+    return send_file(access_log_file, 
+                    as_attachment=True,
+                    download_name=download_filename,
+                    mimetype='text/plain')
 
 if __name__ == '__main__':
     # Add .gitignore entry for logs directory if it doesn't exist
@@ -686,12 +914,21 @@ if __name__ == '__main__':
             gitignore_content = f.read()
         if 'logs/' not in gitignore_content:
             with open(gitignore_path, 'a') as f:
-                f.write('\n# Log files\nlogs/\n')
+                f.write('\n# Ignore logs directory\nlogs/\n')
     else:
         with open(gitignore_path, 'w') as f:
-            f.write('# Log files\nlogs/\n')
+            f.write('# Ignore logs directory\nlogs/\n')
     
-    # Database tables are created at app startup
+    # Create a robots.txt file to prevent indexing of admin routes
+    robots_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static', 'robots.txt')
+    os.makedirs(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static'), exist_ok=True)
+    if not os.path.exists(robots_path):
+        try:
+            with open(robots_path, 'w') as f:
+                f.write("User-agent: *\n")
+                f.write("Disallow: /admin/\n")
+        except Exception as e:
+            print(f"Could not create robots.txt file: {e}")
     
     # Use Railway's PORT environment variable if available, otherwise default to 5000
     port = int(os.environ.get("PORT", 5000))

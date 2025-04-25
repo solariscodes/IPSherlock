@@ -181,15 +181,117 @@
             </div>
             {% endif %}
             
+            <!-- Log Filter Controls -->
+            <div class="filter-controls" style="margin-top: 20px; display: flex; flex-wrap: wrap; gap: 15px; align-items: center;">
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <label for="log-filter" style="font-weight: 500;">Filter Type:</label>
+                    <select id="log-filter" class="filter-select" style="padding: 8px; border-radius: 4px; border: 1px solid #ddd;">
+                        <option value="all">All Entries</option>
+                        <option value="honeypot">Honeypot Entries Only</option>
+                        <option value="regular">Regular Lookups Only</option>
+                    </select>
+                </div>
+                
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <label for="log-search" style="font-weight: 500;">Search:</label>
+                    <input type="text" id="log-search" placeholder="Search by IP, path or user agent..." 
+                           style="padding: 8px; border-radius: 4px; border: 1px solid #ddd; width: 250px;">
+                    <button id="search-clear" style="background: #6c757d; color: white; border: none; border-radius: 4px; padding: 8px 12px; cursor: pointer;">
+                        <i class="fas fa-times"></i> Clear
+                    </button>
+                </div>
+                
+                <span class="filter-count" style="margin-left: 10px; font-size: 14px; color: #6c757d;"></span>
+            </div>
+            
             <div class="logs-container">
                 {% if logs %}
                     {% for log in logs %}
-                        <div class="log-entry">{{ log | safe }}</div>
+                        <div class="log-entry" data-type="{% if '🎣' in log %}honeypot{% else %}regular{% endif %}">{{ log | safe }}</div>
                     {% endfor %}
                 {% else %}
                     <p>No search logs found.</p>
                 {% endif %}
             </div>
+            
+            <!-- JavaScript for filtering -->
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    const filterSelect = document.getElementById('log-filter');
+                    const searchInput = document.getElementById('log-search');
+                    const searchClearBtn = document.getElementById('search-clear');
+                    const logEntries = document.querySelectorAll('.log-entry');
+                    const filterCount = document.querySelector('.filter-count');
+                    
+                    // Function to update the count of visible entries
+                    function updateCount() {
+                        const visibleCount = document.querySelectorAll('.log-entry:not([style*="display: none"])').length;
+                        filterCount.textContent = `Showing ${visibleCount} of ${logEntries.length} entries`;
+                    }
+                    
+                    // Function to apply all filters
+                    function applyFilters() {
+                        const filterValue = filterSelect.value;
+                        const searchValue = searchInput.value.toLowerCase();
+                        
+                        logEntries.forEach(entry => {
+                            const entryType = entry.getAttribute('data-type');
+                            const entryText = entry.textContent.toLowerCase();
+                            
+                            // Check if entry matches the type filter
+                            const matchesTypeFilter = (filterValue === 'all' || filterValue === entryType);
+                            
+                            // Check if entry matches the search filter
+                            const matchesSearchFilter = searchValue === '' || entryText.includes(searchValue);
+                            
+                            // Show entry only if it matches both filters
+                            if (matchesTypeFilter && matchesSearchFilter) {
+                                entry.style.display = '';
+                                
+                                // If there's a search term, highlight it
+                                if (searchValue !== '') {
+                                    // Store the original HTML if we haven't already
+                                    if (!entry.hasAttribute('data-original-html')) {
+                                        entry.setAttribute('data-original-html', entry.innerHTML);
+                                    }
+                                    
+                                    // Create a highlighted version of the HTML
+                                    // This is a simple highlight that works for text nodes
+                                    const originalHTML = entry.getAttribute('data-original-html');
+                                    const highlightedHTML = originalHTML.replace(
+                                        new RegExp(searchValue, 'gi'),
+                                        match => `<mark style="background-color: #fff3cd; padding: 0 2px;">${match}</mark>`
+                                    );
+                                    entry.innerHTML = highlightedHTML;
+                                } else if (entry.hasAttribute('data-original-html')) {
+                                    // Restore original HTML if search is cleared
+                                    entry.innerHTML = entry.getAttribute('data-original-html');
+                                }
+                            } else {
+                                entry.style.display = 'none';
+                            }
+                        });
+                        
+                        // Update count after filtering
+                        updateCount();
+                    }
+                    
+                    // Initial count
+                    updateCount();
+                    
+                    // Type filter change event
+                    filterSelect.addEventListener('change', applyFilters);
+                    
+                    // Search input event (apply filter as user types)
+                    searchInput.addEventListener('input', applyFilters);
+                    
+                    // Clear search button
+                    searchClearBtn.addEventListener('click', function() {
+                        searchInput.value = '';
+                        applyFilters();
+                    });
+                });
+            </script>
             
             <div class="back-link">
                 <a href="{{ url_for('index') }}">Return to Investigation</a>

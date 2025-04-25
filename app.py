@@ -1054,6 +1054,97 @@ def download_access_logs():
                     download_name=download_filename,
                     mimetype='text/plain')
 
+# Honeypot routes for script kiddies scanning for WordPress vulnerabilities
+@app.route('/wordpress/wp-admin/setup-config.php')
+@app.route('/wp-admin/setup-config.php')
+def wordpress_honeypot():
+    # Get client IP for logging
+    if request.headers.get('X-Forwarded-For'):
+        client_ip = request.headers.get('X-Forwarded-For', '').split(',')[0].strip()
+    else:
+        client_ip = request.remote_addr
+        
+    # Determine if IPv4 or IPv6
+    ip_version = "IPv6" if ':' in client_ip else "IPv4"
+    
+    # Log the attempt with a special tag
+    timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    user_agent = request.headers.get('User-Agent', 'Unknown')
+    path = request.path
+    
+    # Create log entry for admin panel
+    log_entry = f"{client_ip} ({ip_version}) | {timestamp} | {path} | {user_agent}"
+    
+    # Log to search logger with a special tag
+    search_logger.info(f"[HONEYPOT] {log_entry}")
+    
+    # Return a funny message that looks like an error but is actually a taunt
+    html_response = f"""
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>WordPress Setup Error</title>
+        <style>
+            body {{ font-family: Arial, sans-serif; background-color: #f1f1f1; color: #444; padding: 20px; }}
+            .error-container {{ background-color: white; border-left: 4px solid #dc3545; padding: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }}
+            h1 {{ color: #dc3545; }}
+            .detective {{ margin-top: 30px; font-style: italic; color: #2c3e50; }}
+            .trace {{ font-family: monospace; background-color: #f8f9fa; padding: 15px; margin-top: 20px; overflow-x: auto; }}
+            .footer {{ margin-top: 30px; font-size: 12px; color: #6c757d; text-align: center; }}
+            .magnifying-glass {{ font-size: 40px; margin-right: 10px; }}
+            .case-file {{ background-color: #fff3cd; border: 1px dashed #856404; padding: 15px; margin-top: 20px; }}
+            .case-file h3 {{ color: #856404; margin-top: 0; }}
+            .blink {{ animation: blink-animation 1s steps(5, start) infinite; }}
+            @keyframes blink-animation {{ to {{ visibility: hidden; }} }}
+            .evidence {{ font-weight: bold; color: #dc3545; }}
+        </style>
+    </head>
+    <body>
+        <div class="error-container">
+            <h1><span class="magnifying-glass">🔍</span> CASE FILE: Script Kiddie Detected!</h1>
+            <p>Elementary, my dear Watson! Another script kiddie has fallen into our trap.</p>
+            
+            <div class="detective">
+                <p><strong>IPSherlock Detective Agency - Case #{datetime.now().strftime('%Y%m%d%H%M%S')}</strong></p>
+                <p>Ah-ha! The game is afoot! We've caught you red-handed attempting to exploit a non-existent WordPress installation. <span class="blink evidence">BUSTED!</span></p>
+                
+                <div class="case-file">
+                    <h3>🕵️‍♂️ Detective's Notes:</h3>
+                    <ul>
+                        <li><strong>Suspect IP:</strong> <span class="evidence">{client_ip}</span></li>
+                        <li><strong>Time of Crime:</strong> {timestamp}</li>
+                        <li><strong>Modus Operandi:</strong> Automated WordPress vulnerability scanning</li>
+                        <li><strong>Threat Level:</strong> Script Kiddie (Amateur Hour)</li>
+                        <li><strong>Browser Fingerprint:</strong> Cataloged and filed under "Predictable Attacks"</li>
+                    </ul>
+                    <p>The suspect appears to be using common scanning techniques. How <em>original</em>. *yawns dramatically*</p>
+                </div>
+            </div>
+            
+            <div class="trace">
+                <p><strong>Evidence Log:</strong></p>
+                <pre>CaseFile: The Curious Incident of the Script Kiddie in the Night-Time
+
+IPSherlock: "You see, but you do not observe. The distinction is clear."
+ScriptKiddie: *confused beeping*
+IPSherlock: "Crime is common. Logic is rare."
+
+Status: Case solved at {timestamp}
+Verdict: Amateur hacking attempt. Most disappointing.
+
+Note to self: Add {client_ip} to the "Wall of Shame"</pre>
+            </div>
+        </div>
+        <div class="footer">
+            <p>This honeypot is powered by IPSherlock - The IP & Domain Detective | "We're always watching..."</p>
+        </div>
+    </body>
+    </html>
+    """
+    
+    # Return with a 200 status to make them think they found something
+    return html_response
+
 if __name__ == '__main__':
     # Add .gitignore entry for logs directory if it doesn't exist
     gitignore_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '.gitignore')

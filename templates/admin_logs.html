@@ -137,6 +137,9 @@
                     {% if access_log_exists %}
                     <a href="{{ url_for('download_access_logs', key=request.args.get('key')) }}" class="admin-btn download-btn"><i class="fas fa-download"></i> Download HTTP Logs</a>
                     {% endif %}
+                    {% if script_kiddie_logs_exist %}
+                    <a href="{{ url_for('download_script_kiddie_logs', key=request.args.get('key')) }}" class="admin-btn download-btn" style="background-color: #e0a800;"><i class="fas fa-download"></i> Download Script Kiddie Logs</a>
+                    {% endif %}
                     <a href="{{ request.url }}" class="admin-btn"><i class="fas fa-sync-alt"></i> Refresh</a>
                 </div>
             </div>
@@ -182,6 +185,12 @@
             {% endif %}
             
 
+            
+            {% if honeypot_logs_limited %}
+            <div class="stats-container" style="margin-top: 20px; border-left: 4px solid #e0a800;">
+                <p style="margin: 0; color: #856404;"><i class="fas fa-info-circle"></i> <strong>Note:</strong> Only showing the last 10 script kiddie entries. Use the "Download Script Kiddie Logs" button above to view all entries.</p>
+            </div>
+            {% endif %}
             
             <div class="logs-container">
                 {% if logs %}

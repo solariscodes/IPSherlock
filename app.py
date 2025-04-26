@@ -9,7 +9,6 @@ import csv
 import io
 import os
 import logging
-import sys
 import json
 from datetime import datetime
 from logging.handlers import RotatingFileHandler
@@ -1000,42 +999,75 @@ def admin_logs():
     # Reverse to show newest first
     log_entries.reverse()
     
+    # Separate honeypot entries from regular logs
+    honeypot_logs = []
+    regular_logs = []
+    
+    for log in log_entries:
+        if '[HONEYPOT]' in log:
+            honeypot_logs.append(log)
+        else:
+            regular_logs.append(log)
+    
+    # Count total honeypot hits
+    honeypot_count = len(honeypot_logs)
+    
+    # Get the most recent honeypot hit time
+    latest_honeypot_time = None
+    if honeypot_logs:
+        try:
+            timestamp_part = honeypot_logs[0].split(' | ')[1]
+            latest_honeypot_time = timestamp_part
+        except:
+            pass
+    
+    # Limit honeypot logs to the last 10 entries for display
+    limited_honeypot_logs = honeypot_logs[:10]
+    
     # Format logs to highlight IPv6 addresses and honeypot entries
     formatted_logs = []
-    for log in log_entries:
+    
+    # Format the limited honeypot logs first
+    for log in limited_honeypot_logs:
         try:
-            # Check if this is a honeypot entry
-            if '[HONEYPOT]' in log:
-                # Remove the [HONEYPOT] tag for display but keep the rest intact
-                clean_log = log.replace('[HONEYPOT] ', '')
-                
-                # Check if it also contains an IPv6 address
-                if '(IPv6)' in clean_log:
-                    # For IPv6 addresses, we need special handling
-                    parts = clean_log.split(' | ')
-                    if len(parts) >= 1:
-                        ip_part = parts[0]  # This should be "IP (IPv6)"
-                        rest = ' | '.join(parts[1:]) if len(parts) > 1 else ''
-                        # Format with both honeypot and IPv6 highlighting
-                        formatted_log = f'<span class="honeypot"><span class="ipv6">{ip_part}</span> | {rest} 🎣</span>'
-                    else:
-                        # Fallback if parsing fails
-                        formatted_log = f'<span class="honeypot">{clean_log} 🎣</span>'
+            # Remove the [HONEYPOT] tag for display but keep the rest intact
+            clean_log = log.replace('[HONEYPOT] ', '')
+            
+            # Check if it also contains an IPv6 address
+            if '(IPv6)' in clean_log:
+                # For IPv6 addresses, we need special handling
+                parts = clean_log.split(' | ')
+                if len(parts) >= 1:
+                    ip_part = parts[0]  # This should be "IP (IPv6)"
+                    rest = ' | '.join(parts[1:]) if len(parts) > 1 else ''
+                    # Format with both honeypot and IPv6 highlighting
+                    formatted_log = f'<span class="honeypot"><span class="ipv6">{ip_part}</span> | {rest} 🎣</span>'
                 else:
-                    # For IPv4 addresses, we can use a simpler approach
-                    parts = clean_log.split(' | ')
-                    if len(parts) >= 1:
-                        ip_part = parts[0]  # This should be "IP (IPv4)"
-                        rest = ' | '.join(parts[1:]) if len(parts) > 1 else ''
-                        # Format with honeypot highlighting
-                        formatted_log = f'<span class="honeypot"><strong>{ip_part}</strong> | {rest} 🎣</span>'
-                    else:
-                        # Fallback if parsing fails
-                        formatted_log = f'<span class="honeypot">{clean_log} 🎣</span>'
-                
-                formatted_logs.append(formatted_log)
+                    # Fallback if parsing fails
+                    formatted_log = f'<span class="honeypot">{clean_log} 🎣</span>'
+            else:
+                # For IPv4 addresses, we can use a simpler approach
+                parts = clean_log.split(' | ')
+                if len(parts) >= 1:
+                    ip_part = parts[0]  # This should be "IP (IPv4)"
+                    rest = ' | '.join(parts[1:]) if len(parts) > 1 else ''
+                    # Format with honeypot highlighting
+                    formatted_log = f'<span class="honeypot"><strong>{ip_part}</strong> | {rest} 🎣</span>'
+                else:
+                    # Fallback if parsing fails
+                    formatted_log = f'<span class="honeypot">{clean_log} 🎣</span>'
+            
+            formatted_logs.append(formatted_log)
+        except Exception as e:
+            # If any formatting fails, add the original log
+            print(f"Error formatting log: {e}")
+            formatted_logs.append(log.replace('[HONEYPOT] ', ''))
+    
+    # Then format the regular logs
+    for log in regular_logs:
+        try:
             # Regular IPv6 entry (not honeypot)
-            elif '(IPv6)' in log:
+            if '(IPv6)' in log:
                 # Find the IPv6 address (assuming it's at the beginning of the log)
                 parts = log.split(' | ')
                 if len(parts) >= 1:
@@ -1057,28 +1089,15 @@ def admin_logs():
     
     # Check if access log file exists
     access_log_exists = False
+    script_kiddie_logs_exist = honeypot_count > 0
     
     if os.environ.get('RAILWAY_ENVIRONMENT'):
         access_log_file = os.path.join('/tmp', ACCESS_LOG_FILENAME)
         access_log_exists = os.path.exists(access_log_file)
     else:
+        log_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'logs')
         access_log_file = os.path.join(log_dir, 'access.log')
         access_log_exists = os.path.exists(access_log_file)
-    
-    # Count honeypot hits
-    honeypot_count = sum(1 for log in log_entries if '[HONEYPOT]' in log)
-    
-    # Get the most recent honeypot hit time
-    latest_honeypot_time = None
-    for log in log_entries:
-        if '[HONEYPOT]' in log:
-            # Extract timestamp from log entry (format: IP | TIMESTAMP | PATH | BROWSER)
-            try:
-                timestamp_part = log.split(' | ')[1]
-                latest_honeypot_time = timestamp_part
-                break  # We've found the most recent one (since logs are reversed)
-            except:
-                pass
     
     # Pass visitor statistics to the template
     return render_template('admin_logs.html', 
@@ -1087,7 +1106,9 @@ def admin_logs():
                            visitor_stats=unique_visitors,
                            total_unique_visitors=len(unique_ips),
                            honeypot_count=honeypot_count,
-                           latest_honeypot_time=latest_honeypot_time)
+                           latest_honeypot_time=latest_honeypot_time,
+                           script_kiddie_logs_exist=script_kiddie_logs_exist,
+                           honeypot_logs_limited=len(honeypot_logs) > 10)
 
 # Script logs route has been removed
 
@@ -1132,6 +1153,86 @@ def download_access_logs():
     
     # Send the file as an attachment
     return send_file(access_log_file, 
+                    as_attachment=True,
+                    download_name=download_filename,
+                    mimetype='text/plain')
+
+# Add route to download script kiddie logs
+@app.route('/admin/download-script-kiddie-logs')
+def download_script_kiddie_logs():
+    # Check if the provided key matches the admin password
+    if request.args.get('key') != ADMIN_PASSWORD:
+        return "Not Found", 404
+    
+    # Additional security: Check referer to prevent direct access
+    referer = request.headers.get('Referer', '')
+    if not referer or '/admin/logs' not in referer:
+        # Log potential unauthorized access attempt
+        print(f"Warning: Unauthorized access attempt to script kiddie logs from {request.remote_addr}")
+        return "Not Found", 404
+    
+    # Get logs from file
+    log_entries = []
+    log_read_success = False
+    
+    # Try Railway logs first
+    if os.environ.get('RAILWAY_ENVIRONMENT'):
+        try:
+            # Try the standard Railway log file
+            log_file = os.path.join('/tmp', LOG_FILENAME)
+            if os.path.exists(log_file):
+                with open(log_file, 'r', encoding='utf-8') as f:
+                    log_entries = [line.strip() for line in f.readlines()]
+                    log_read_success = True
+            
+            # Also try the search.log in /tmp directory
+            search_log_file = os.path.join('/tmp', 'search.log')
+            if os.path.exists(search_log_file):
+                with open(search_log_file, 'r', encoding='utf-8') as f:
+                    search_log_entries = [line.strip() for line in f.readlines()]
+                    log_entries.extend(search_log_entries)
+                    log_read_success = True
+        except Exception as e:
+            if not log_read_success:
+                log_entries = [f"Error reading Railway logs: {e}"]
+    
+    # Try local logs
+    if not log_read_success:
+        try:
+            log_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'logs')
+            os.makedirs(log_dir, exist_ok=True)  # Ensure logs directory exists
+            
+            log_file = os.path.join(log_dir, 'search.log')
+            if os.path.exists(log_file):
+                with open(log_file, 'r', encoding='utf-8') as f:
+                    log_entries = [line.strip() for line in f.readlines()]
+                    log_read_success = True
+        except Exception as e:
+            if not log_read_success:
+                log_entries = [f"Error reading local logs: {e}"]
+    
+    # Filter out only honeypot entries
+    honeypot_logs = [log for log in log_entries if '[HONEYPOT]' in log]
+    
+    # Generate a timestamped filename for the log
+    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+    download_filename = f"ipsherlock_script_kiddie_log_{timestamp}.log"
+    
+    # Create a temporary file with the honeypot logs
+    temp_file = io.StringIO()
+    temp_file.write(f"# Script Kiddie Log file generated on {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+    temp_file.write(f"# Total entries: {len(honeypot_logs)}\n\n")
+    
+    for log in honeypot_logs:
+        temp_file.write(f"{log}\n")
+    
+    temp_file.seek(0)
+    
+    # Log this download event to console
+    print(f"Script kiddie log file downloaded at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    
+    # Send the file as an attachment
+    return send_file(temp_file, 
                     as_attachment=True,
                     download_name=download_filename,
                     mimetype='text/plain')

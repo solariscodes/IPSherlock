@@ -123,17 +123,8 @@
         </div>
     </div>
     
-    <footer>
-        <p>&copy; 2025 IPSherlock. All rights reserved.</p>
-        <div class="footer-links">
-            <a href="{{ url_for('index') }}" class="active">Home</a>
-            <a href="{{ url_for('about_alt') }}">About</a>
-            <a href="{{ url_for('resources') }}">Resources</a>
-            <a href="{{ url_for('faq') }}">FAQ</a>
-            <a href="{{ url_for('privacy') }}">Privacy Policy</a>
-            <a href="https://invoicecompass.com" target="_blank">InvoiceCompass</a>
-        </div>
-    </footer>
+    {% set active_page = 'home' %}
+    {% include 'includes/footer.html' %}
     
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
     

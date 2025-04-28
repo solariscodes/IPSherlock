@@ -1,0 +1,11 @@
+<footer>
+    <p>&copy; 2025 IPSherlock. All rights reserved.</p>
+    <div class="footer-links">
+        <a href="{{ url_for('index') }}" {% if active_page == 'home' %}class="active"{% endif %}>Home</a>
+        <a href="{{ url_for('about_alt') }}" {% if active_page == 'about' %}class="active"{% endif %}>About</a>
+        <a href="{{ url_for('resources') }}" {% if active_page == 'resources' %}class="active"{% endif %}>Resources</a>
+        <a href="{{ url_for('faq') }}" {% if active_page == 'faq' %}class="active"{% endif %}>FAQ</a>
+        <a href="{{ url_for('privacy') }}" {% if active_page == 'privacy' %}class="active"{% endif %}>Privacy Policy</a>
+        <a href="https://invoicecompass.com" target="_blank">InvoiceCompass</a>
+    </div>
+</footer>

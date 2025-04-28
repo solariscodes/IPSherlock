@@ -1,3 +1,7 @@
 # ads.txt file for IPSherlock
 # For Google AdSense
 google.com, pub-4443735425555753, DIRECT, f08c47fec0942fa0
+
+# For Monetag
+monetag.com, 9256553, DIRECT
+aiharsoreersu.net, 9256553, DIRECT

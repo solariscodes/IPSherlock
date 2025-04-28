@@ -17,6 +17,19 @@
     <!-- Google AdSense Code -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4443735425555753"
          crossorigin="anonymous"></script>
+    
+    <!-- Monetag Service Worker Initialization -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('{{ url_for("static", filename="js/sw.js") }}', {
+                scope: '/'
+            }).then(function(registration) {
+                console.log('Monetag Service worker registered successfully');
+            }).catch(function(error) {
+                console.log('Monetag Service worker registration failed:', error);
+            });
+        }
+    </script>
          
     <!-- Structured Data / JSON-LD -->
     <script type="application/ld+json">

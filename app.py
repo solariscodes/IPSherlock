@@ -652,6 +652,14 @@ def about():
 def privacy():
     return render_template('privacy.html')
 
+@app.route('/resources')
+def resources():
+    return render_template('resources.html')
+
+@app.route('/faq')
+def faq():
+    return render_template('faq.html')
+
 # Rota alternativa para a página about usando o padrão de URL que sabemos funcionar
 @app.route('/lookup/about')
 def about_alt():
@@ -678,6 +686,18 @@ def sitemap():
   </url>
   <url>
     <loc>https://ipsherlock.com/privacy</loc>
+    <lastmod>{current_date}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://ipsherlock.com/resources</loc>
+    <lastmod>{current_date}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://ipsherlock.com/faq</loc>
     <lastmod>{current_date}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>

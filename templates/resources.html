@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resources - IPSherlock</title>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="IPSherlock resources - Useful tools and information about IP addresses, domains, WHOIS data, DNS records, and more.">
+    <meta name="keywords" content="IP lookup resources, domain lookup tools, WHOIS information, DNS records, IP geolocation, network tools">
+    <meta name="author" content="IPSherlock">
+    <meta name="robots" content="index, follow">
+    <meta name="site-verification" content="10732262880488dc2024de83b7bb6ab9"/>
+    <link rel="canonical" href="https://ipsherlock.com/resources">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <link rel="icon" href="{{ url_for('static', filename='img/0.png') }}" type="image/png">
+    <!-- Google AdSense Code -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4443735425555753"
+         crossorigin="anonymous"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="centered-content">
+            <header>
+                <div class="logo-container">
+                    <img src="{{ url_for('static', filename='img/0.png') }}" alt="IPSherlock Logo" class="logo">
+                    <h1><a href="{{ url_for('index') }}" class="title-link">IPSherlock</a></h1>
+                </div>
+                <p>The Detective for IP Addresses & Domains</p>
+            </header>
+        </div>
+    </div>
+    
+    <div class="content-section">
+        <h2>Digital Investigation Resources</h2>
+        
+        <div class="content-grid">
+            <div class="content-item">
+                <h3>IP Address Tools</h3>
+                <ul class="resource-list">
+                    <li><a href="https://www.iana.org/numbers" target="_blank">IANA IP Address Assignments</a> - Official registry of IP address allocations</li>
+                    <li><a href="https://www.ripe.net/manage-ips-and-asns/db" target="_blank">RIPE Database</a> - European IP address registry</li>
+                    <li><a href="https://www.arin.net/resources/registry/whois/" target="_blank">ARIN Whois</a> - North American IP address registry</li>
+                    <li><a href="https://www.apnic.net/manage-ip/using-whois/searching/" target="_blank">APNIC Whois</a> - Asia-Pacific IP address registry</li>
+                    <li><a href="https://www.lacnic.net/web/lacnic/inicio" target="_blank">LACNIC</a> - Latin American and Caribbean IP address registry</li>
+                    <li><a href="https://www.afrinic.net/" target="_blank">AFRINIC</a> - African IP address registry</li>
+                </ul>
+            </div>
+            
+            <div class="content-item">
+                <h3>Domain Name Resources</h3>
+                <ul class="resource-list">
+                    <li><a href="https://www.icann.org/" target="_blank">ICANN</a> - Internet Corporation for Assigned Names and Numbers</li>
+                    <li><a href="https://lookup.icann.org/" target="_blank">ICANN Lookup</a> - Official WHOIS lookup tool</li>
+                    <li><a href="https://www.internic.net/" target="_blank">InterNIC</a> - Network Information Center</li>
+                    <li><a href="https://www.verisign.com/" target="_blank">Verisign</a> - Registry operator for .com and .net domains</li>
+                    <li><a href="https://www.iana.org/domains/root/db" target="_blank">IANA Root Zone Database</a> - List of all top-level domains</li>
+                </ul>
+            </div>
+            
+            <div class="content-item">
+                <h3>DNS Tools</h3>
+                <ul class="resource-list">
+                    <li><a href="https://www.dnsstuff.com/" target="_blank">DNS Stuff</a> - Comprehensive DNS tools</li>
+                    <li><a href="https://www.whatsmydns.net/" target="_blank">What's My DNS</a> - Global DNS propagation checker</li>
+                    <li><a href="https://www.digwebinterface.com/" target="_blank">Dig Web Interface</a> - Web-based DNS lookup tool</li>
+                    <li><a href="https://dnsviz.net/" target="_blank">DNSViz</a> - DNS visualization tool</li>
+                    <li><a href="https://www.robtex.com/" target="_blank">Robtex</a> - All-in-one network tool</li>
+                </ul>
+            </div>
+            
+            <div class="content-item">
+                <h3>Network Security Resources</h3>
+                <ul class="resource-list">
+                    <li><a href="https://www.abuseipdb.com/" target="_blank">AbuseIPDB</a> - IP address abuse reports</li>
+                    <li><a href="https://www.virustotal.com/" target="_blank">VirusTotal</a> - Analyze suspicious files and URLs</li>
+                    <li><a href="https://www.shodan.io/" target="_blank">Shodan</a> - Search engine for Internet-connected devices</li>
+                    <li><a href="https://censys.io/" target="_blank">Censys</a> - Search engine for Internet-connected devices and certificates</li>
+                    <li><a href="https://www.spamhaus.org/" target="_blank">Spamhaus</a> - Spam and malware tracking</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="content-item full-width">
+            <h3>Related Tools by Our Team</h3>
+            <p>Check out our other digital investigation tools:</p>
+            <ul class="resource-list featured">
+                <li><a href="https://invoicecompass.com" target="_blank">InvoiceCompass</a> - Professional invoice generation and management tool. Create, track, and manage invoices with ease.</li>
+            </ul>
+        </div>
+        
+        <div class="content-item full-width">
+            <h3>Educational Resources</h3>
+            <ul class="resource-list">
+                <li><a href="https://www.ietf.org/standards/rfcs/" target="_blank">IETF RFCs</a> - Internet standards and protocols</li>
+                <li><a href="https://www.cloudflare.com/learning/" target="_blank">Cloudflare Learning Center</a> - Educational resources about Internet technology</li>
+                <li><a href="https://www.internetsociety.org/tutorials/" target="_blank">Internet Society Tutorials</a> - Educational resources about Internet technology</li>
+                <li><a href="{{ url_for('faq') }}">IPSherlock FAQ</a> - Frequently asked questions about IP addresses and domains</li>
+            </ul>
+        </div>
+    </div>
+    
+    <footer>
+        <p>&copy; 2025 IPSherlock. All rights reserved.</p>
+        <div class="footer-links">
+            <a href="{{ url_for('index') }}">Home</a>
+            <a href="{{ url_for('about_alt') }}">About</a>
+            <a href="{{ url_for('resources') }}" class="active">Resources</a>
+            <a href="{{ url_for('faq') }}">FAQ</a>
+            <a href="{{ url_for('privacy') }}">Privacy Policy</a>
+            <a href="https://invoicecompass.com" target="_blank">InvoiceCompass</a>
+        </div>
+    </footer>
+    
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    
+    <!-- Cookie Consent Banner -->
+    <div class="cookie-consent" id="cookieConsent">
+        <div class="cookie-text">
+            <p>This detective agency uses digital tracking tools (cookies) to enhance your investigation experience. By accepting, you acknowledge our use of cookies for essential site functionality and analytics. Read our <a href="{{ url_for('privacy') }}">Privacy Policy</a> for more details on our investigative methods.</p>
+        </div>
+        <div class="cookie-buttons">
+            <button class="cookie-btn cookie-accept" id="acceptCookies">Accept</button>
+            <a href="{{ url_for('privacy') }}" class="cookie-btn cookie-learn">Learn More</a>
+        </div>
+    </div>
+    
+    <script>
+        // Cookie Consent Management
+        document.addEventListener('DOMContentLoaded', function() {
+            const cookieConsent = document.getElementById('cookieConsent');
+            const acceptCookies = document.getElementById('acceptCookies');
+            
+            // Check if user has already accepted cookies
+            if (!localStorage.getItem('cookiesAccepted')) {
+                // Show the cookie consent banner with a slight delay
+                setTimeout(function() {
+                    cookieConsent.classList.add('show');
+                }, 1000);
+            }
+            
+            // Handle accept button click
+            acceptCookies.addEventListener('click', function() {
+                localStorage.setItem('cookiesAccepted', 'true');
+                cookieConsent.classList.remove('show');
+            });
+        });
+    </script>
+</body>
+</html>

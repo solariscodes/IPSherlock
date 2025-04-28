@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FAQ - IPSherlock</title>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Frequently Asked Questions about IP addresses, domains, and the IPSherlock tool.">
+    <meta name="keywords" content="IP lookup FAQ, domain lookup questions, WHOIS data, DNS records, IP geolocation FAQ">
+    <meta name="author" content="IPSherlock">
+    <meta name="robots" content="index, follow">
+    <meta name="site-verification" content="10732262880488dc2024de83b7bb6ab9"/>
+    <link rel="canonical" href="https://ipsherlock.com/faq">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <link rel="icon" href="{{ url_for('static', filename='img/0.png') }}" type="image/png">
+    <!-- Google AdSense Code -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4443735425555753"
+         crossorigin="anonymous"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="centered-content">
+            <header>
+                <div class="logo-container">
+                    <img src="{{ url_for('static', filename='img/0.png') }}" alt="IPSherlock Logo" class="logo">
+                    <h1><a href="{{ url_for('index') }}" class="title-link">IPSherlock</a></h1>
+                </div>
+                <p>The Detective for IP Addresses & Domains</p>
+            </header>
+        </div>
+    </div>
+    
+    <div class="content-section">
+        <h2>Frequently Asked Questions</h2>
+        
+        <div class="faq-container">
+            <div class="faq-item">
+                <h3>What is IPSherlock?</h3>
+                <div class="faq-answer">
+                    <p>IPSherlock is a comprehensive online tool that provides detailed information about IP addresses and domain names. It acts as your digital detective, gathering information from multiple sources and presenting it in an easy-to-understand format.</p>
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <h3>What information can I find using IPSherlock?</h3>
+                <div class="faq-answer">
+                    <p>With IPSherlock, you can find:</p>
+                    <ul>
+                        <li>IP address details (location, ISP, organization)</li>
+                        <li>Domain WHOIS information (registration details, expiration dates)</li>
+                        <li>DNS records (A, AAAA, MX, TXT, NS records)</li>
+                        <li>Reverse DNS lookups</li>
+                        <li>Network information (ASN, network range)</li>
+                        <li>Geolocation data</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <h3>Is IPSherlock free to use?</h3>
+                <div class="faq-answer">
+                    <p>Yes, IPSherlock is completely free to use. We believe in providing valuable network investigation tools to everyone without any cost barriers.</p>
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <h3>What's the difference between IPv4 and IPv6 addresses?</h3>
+                <div class="faq-answer">
+                    <p>IPv4 addresses use a 32-bit format, displayed as four sets of numbers separated by dots (e.g., 192.168.1.1). IPv6 addresses use a 128-bit format, displayed as eight groups of hexadecimal digits separated by colons (e.g., 2001:0db8:85a3:0000:0000:8a2e:0370:7334).</p>
+                    <p>IPv6 was developed to address the IPv4 address exhaustion problem, providing a much larger address space. While IPv4 can support approximately 4.3 billion unique addresses, IPv6 can support approximately 340 undecillion (3.4 × 10^38) addresses.</p>
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <h3>What is WHOIS information?</h3>
+                <div class="faq-answer">
+                    <p>WHOIS is a query and response protocol used to look up information about domain names and IP addresses. It typically provides details about the registrant (owner) of a domain, including contact information, registration and expiration dates, and the domain's name servers.</p>
+                    <p>However, with privacy protection services becoming more common, some of this information may be redacted or replaced with the details of the privacy service provider.</p>
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <h3>What are DNS records?</h3>
+                <div class="faq-answer">
+                    <p>DNS (Domain Name System) records are instructions that live in DNS servers and provide information about a domain including what IP address is associated with that domain and how to handle requests for that domain. Common DNS record types include:</p>
+                    <ul>
+                        <li><strong>A Record</strong>: Maps a domain name to an IPv4 address</li>
+                        <li><strong>AAAA Record</strong>: Maps a domain name to an IPv6 address</li>
+                        <li><strong>CNAME Record</strong>: Maps a domain name to another domain name</li>
+                        <li><strong>MX Record</strong>: Specifies mail servers for the domain</li>
+                        <li><strong>TXT Record</strong>: Contains text information for sources outside your domain</li>
+                        <li><strong>NS Record</strong>: Delegates a DNS zone to use the given authoritative name servers</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <h3>Is my search data private?</h3>
+                <div class="faq-answer">
+                    <p>We take your privacy seriously. While we do log searches for operational and security purposes, we do not share your personal search data with third parties. For more details, please review our <a href="{{ url_for('privacy') }}">Privacy Policy</a>.</p>
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <h3>Can I use IPSherlock for bulk lookups?</h3>
+                <div class="faq-answer">
+                    <p>Currently, IPSherlock is designed for individual lookups. We don't offer a bulk lookup feature through the web interface. If you need to perform bulk lookups, you might want to consider using command-line tools like dig, whois, or nslookup.</p>
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <h3>What is an ASN?</h3>
+                <div class="faq-answer">
+                    <p>An Autonomous System Number (ASN) is a unique identifier assigned to a group of IP networks operated by one or more network operators that maintain a single, clearly defined routing policy. ASNs are used by various routing protocols between networks on the Internet.</p>
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <h3>How accurate is the geolocation data?</h3>
+                <div class="faq-answer">
+                    <p>IP geolocation data is generally accurate to the country level and often to the city level. However, it's important to note that IP geolocation is not an exact science and can sometimes be inaccurate, especially for IPs associated with mobile networks, VPNs, or proxy services.</p>
+                </div>
+            </div>
+            
+            <div class="faq-item">
+                <h3>Do you have other tools I might find useful?</h3>
+                <div class="faq-answer">
+                    <p>Yes! Our team also develops <a href="https://invoicecompass.com" target="_blank">InvoiceCompass</a>, a professional invoice generation and management tool. If you're looking for more network investigation resources, check out our <a href="{{ url_for('resources') }}">Resources page</a>.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <footer>
+        <p>&copy; 2025 IPSherlock. All rights reserved.</p>
+        <div class="footer-links">
+            <a href="{{ url_for('index') }}">Home</a>
+            <a href="{{ url_for('about_alt') }}">About</a>
+            <a href="{{ url_for('resources') }}">Resources</a>
+            <a href="{{ url_for('faq') }}" class="active">FAQ</a>
+            <a href="{{ url_for('privacy') }}">Privacy Policy</a>
+            <a href="https://invoicecompass.com" target="_blank">InvoiceCompass</a>
+        </div>
+    </footer>
+    
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    
+    <!-- Cookie Consent Banner -->
+    <div class="cookie-consent" id="cookieConsent">
+        <div class="cookie-text">
+            <p>This detective agency uses digital tracking tools (cookies) to enhance your investigation experience. By accepting, you acknowledge our use of cookies for essential site functionality and analytics. Read our <a href="{{ url_for('privacy') }}">Privacy Policy</a> for more details on our investigative methods.</p>
+        </div>
+        <div class="cookie-buttons">
+            <button class="cookie-btn cookie-accept" id="acceptCookies">Accept</button>
+            <a href="{{ url_for('privacy') }}" class="cookie-btn cookie-learn">Learn More</a>
+        </div>
+    </div>
+    
+    <script>
+        // Cookie Consent Management
+        document.addEventListener('DOMContentLoaded', function() {
+            const cookieConsent = document.getElementById('cookieConsent');
+            const acceptCookies = document.getElementById('acceptCookies');
+            
+            // Check if user has already accepted cookies
+            if (!localStorage.getItem('cookiesAccepted')) {
+                // Show the cookie consent banner with a slight delay
+                setTimeout(function() {
+                    cookieConsent.classList.add('show');
+                }, 1000);
+            }
+            
+            // Handle accept button click
+            acceptCookies.addEventListener('click', function() {
+                localStorage.setItem('cookiesAccepted', 'true');
+                cookieConsent.classList.remove('show');
+            });
+        });
+    </script>
+</body>
+</html>

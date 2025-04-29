@@ -1,3 +1,4 @@
 # ads.txt file for IPSherlock
 # For Adport
 diclotrans.com, 50159, DIRECT
+diclotrans.com, 50164, DIRECT

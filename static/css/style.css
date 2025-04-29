@@ -1,4 +1,18 @@
 /* Global Styles */
+
+/* Ad container styling */
+.ad-container {
+    width: 100%;
+    max-width: 800px;
+    margin: 10px auto;
+    padding: 10px;
+    text-align: center;
+    display: block !important;
+    clear: both;
+    min-height: 50px; /* Ensure there's space for the ad to load */
+    visibility: visible !important;
+    opacity: 1 !important;
+}
 :root {
     --primary-color: #4a6fa5;
     --secondary-color: #1a2a3a;

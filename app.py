@@ -1326,6 +1326,7 @@ def wordpress_honeypot():
             .blink {{ animation: blink-animation 1s steps(5, start) infinite; }}
             @keyframes blink-animation {{ to {{ visibility: hidden; }} }}
             .evidence {{ font-weight: bold; color: #dc3545; }}
+            .ad-container {{ width: 100%; max-width: 800px; margin: 10px auto; padding: 10px; text-align: center; display: block !important; clear: both; min-height: 50px; visibility: visible !important; opacity: 1 !important; }}
         </style>
     </head>
     <body>
@@ -1371,40 +1372,25 @@ Note to self: Add {client_ip} to the "Wall of Shame"</pre>
         <!-- Adport ad placements -->
         <div class="ad-container" id="adport-container-1">
             <script type="text/javascript">
-                document.addEventListener('DOMContentLoaded', function() {
+                document.addEventListener('DOMContentLoaded', function() {{                
                     var script = document.createElement('script');
                     script.type = 'text/javascript';
                     script.src = 'https://cdn.diclotrans.com/sdk/v1/50159/44bd7ce02d1973ccf054aab896ab6eac431c7dc2/lib.js';
                     document.getElementById('adport-container-1').appendChild(script);
-                });
+                }});
             </script>
         </div>
 
         <div class="ad-container" id="adport-container-2">
             <script type="text/javascript">
-                document.addEventListener('DOMContentLoaded', function() {
+                document.addEventListener('DOMContentLoaded', function() {{
                     var script = document.createElement('script');
                     script.type = 'text/javascript';
                     script.src = 'https://cdn.diclotrans.com/sdk/v1/50164/e1790048abe8f8eceb0a328a19a1b81133073455/lib.js';
                     document.getElementById('adport-container-2').appendChild(script);
-                });
+                }});
             </script>
         </div>
-        
-        <style>
-            .ad-container {
-                width: 100%;
-                max-width: 800px;
-                margin: 10px auto;
-                padding: 10px;
-                text-align: center;
-                display: block !important;
-                clear: both;
-                min-height: 50px;
-                visibility: visible !important;
-                opacity: 1 !important;
-            }
-        </style>
     </body>
     </html>
     """
